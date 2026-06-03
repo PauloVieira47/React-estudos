@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Calculadora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <style>
+    body {
+      background-color: #807ece;
+      font-family: "Rubik", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 0;
+      margin: 0;
+
+      font-family: "Rubik", sans-serif;
+      font-optical-sizing: auto;
+    }
+
+    .card-calculadora {
+      width: 300px;
+      height: 426px;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.655);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #2d2a37;
+      gap: 16px;
+    }
+
+    .container-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    input {
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      border: none;
+      background-color: transparent;
+      color: #bfbfbf;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: right;
+      padding: 0 32px;
+      box-sizing: border-box;
+      cursor: default;
+    }
+
+    button {
+      background:
+        linear-gradient(180deg, #00000005 0%, #ffffff05 100%), #2d2a37;
+      box-shadow: 0 11px 7px 0 rgba(6, 6, 6, 0.26);
+      font-size: 24px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      color: #ebebeb;
+      position: relative;
+    }
+    button::before {
+      content: "";
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-shadow: 0 -1px 3px 0 rgba(255, 255, 255, 0.13);
+      z-index: 1;
+    }
+    button:hover {
+      background-color: #201d27;
+      transition: all 0.3s ease;
+
+      cursor: pointer;
+    }
+
+    .color-roxo {
+      color: #975dfa;
+    }
+    .button-roxo {
+      background:
+        linear-gradient(180deg, #00000005 0%, #ffffff05 100%), #462878;
+      box-shadow: 0 11px 7px 0 rgba(6, 6, 6, 0.26);
+    }
+    .button-roxo::before {
+      content: "";
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-shadow: 0 -2px 3px 0 rgba(255, 255, 255, 0.13);
+      z-index: 1;
+    }
+    .button-roxo:hover {
+      background-color: #462790;
+    }
+    .button-igual {
+      background:
+        linear-gradient(180deg, #00000015 0%, #ffffff05 100%), #7f45e2;
+      box-shadow: 0 11px 7px 0 rgba(6, 6, 6, 0.26);
+    }
+
+    .button-igual::before {
+      content: "";
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-shadow: 0 -2px 3px 0 rgba(255, 255, 255, 0.13);
+    }
+
+    .button-igual:hover {
+      background-color: #6a37c2;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+  </style>
+
+  <body>
+    <div class="card-calculadora">
+      <input
+        onChange="adicionarNumero(this.value)"
+        type="text"
+        id="input"
+        placeholder="0"
+      />
+      <div class="container-buttons">
+        <button onclick="limpar()" class="color-roxo">CE</button>
+        <button onclick="apagarUltimo()" class="color-roxo">C</button>
+        <button onclick="adicionarNumero('%')" class="color-roxo">%</button>
+        <button onclick="adicionarNumero('/')" class="button-roxo">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 28 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M3.5 14C3.5 13.5168 3.89175 13.125 4.375 13.125H23.625C24.1082 13.125 24.5 13.5168 24.5 14C24.5 14.4832 24.1082 14.875 23.625 14.875H4.375C3.89175 14.875 3.5 14.4832 3.5 14Z"
+              fill="#EBEBEB"
+            />
+            <path
+              d="M14 8.75C14.9665 8.75 15.75 7.9665 15.75 7C15.75 6.0335 14.9665 5.25 14 5.25C13.0335 5.25 12.25 6.0335 12.25 7C12.25 7.9665 13.0335 8.75 14 8.75Z"
+              fill="#EBEBEB"
+            />
+            <path
+              d="M14 22.75C14.9665 22.75 15.75 21.9665 15.75 21C15.75 20.0335 14.9665 19.25 14 19.25C13.0335 19.25 12.25 20.0335 12.25 21C12.25 21.9665 13.0335 22.75 14 22.75Z"
+              fill="#EBEBEB"
+            />
+          </svg>
+        </button>
+
+        <button onclick="adicionarNumero(7)">7</button>
+        <button onclick="adicionarNumero(8)">8</button>
+        <button onclick="adicionarNumero(9)">9</button>
+        <button onclick="adicionarNumero('*')" class="button-roxo">X</button>
+
+        <button onclick="adicionarNumero(4)">4</button>
+        <button onclick="adicionarNumero(5)">5</button>
+        <button onclick="adicionarNumero(6)">6</button>
+        <button onclick="adicionarNumero('-')" class="button-roxo">-</button>
+        <button onclick="adicionarNumero(1)">1</button>
+        <button onclick="adicionarNumero(2)">2</button>
+        <button onclick="adicionarNumero(3)">3</button>
+        <button onclick="adicionarNumero('+')" class="button-roxo">+</button>
+        <button>
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 28 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M22.4937 5.50628C22.8354 5.84799 22.8354 6.40201 22.4937 6.74372L6.74372 22.4937C6.40201 22.8354 5.84799 22.8354 5.50628 22.4937C5.16457 22.152 5.16457 21.598 5.50628 21.2563L21.2563 5.50628C21.598 5.16457 22.152 5.16457 22.4937 5.50628Z"
+              fill="#EBEBEB"
+            />
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M2.625 7.875C2.625 7.39175 3.01675 7 3.5 7H12.25C12.7332 7 13.125 7.39175 13.125 7.875C13.125 8.35825 12.7332 8.75 12.25 8.75H3.5C3.01675 8.75 2.625 8.35825 2.625 7.875Z"
+              fill="#EBEBEB"
+            />
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M7.875 2.625C8.35825 2.625 8.75 3.01675 8.75 3.5V12.25C8.75 12.7332 8.35825 13.125 7.875 13.125C7.39175 13.125 7 12.7332 7 12.25V3.5C7 3.01675 7.39175 2.625 7.875 2.625Z"
+              fill="#EBEBEB"
+            />
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M14.875 20.125C14.875 19.6418 15.2668 19.25 15.75 19.25H24.5C24.9832 19.25 25.375 19.6418 25.375 20.125C25.375 20.6082 24.9832 21 24.5 21H15.75C15.2668 21 14.875 20.6082 14.875 20.125Z"
+              fill="#EBEBEB"
+            />
+          </svg>
+        </button>
+        <button onclick="adicionarNumero(0)">0</button>
+        <button>,</button>
+        <button onclick="calculo()" class="button-igual">
+          <strong>=</strong>
+        </button>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    function adicionarNumero(data) {
+      document.getElementById("input").value += data;
+    }
+    function limpar() {
+      document.getElementById("input").value = "";
+    }
+    function apagarUltimo() {
+      document.getElementById("input").value = document
+        .getElementById("input")
+        .value.slice(0, -1);
+    }
+    function calculo() {
+      const input = document.getElementById("input");
+
+      try {
+        const resultado = eval(input.value);
+        input.value = resultado;
+      } catch (error) {
+        input.value = "Invalido";
+      }
+    }
+  </script>
+</html>

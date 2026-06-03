@@ -1,47 +1,253 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modelo de Exemplo</title>
-</head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
+  <style type="text/tailwindcss">
+    @theme {
+      --text: #ebebeb;
+      --text-secundary: #6b6b6b;
+      --primary: #462878;
+      --background: #2d2a37;
+      --background-primary: #462878;
+      --background-fundo: #807ece;
+      --gradient:
+        180deg, rgba(0, 0, 0, 0.05) 0%, rgba(255, 255, 255, 0.05) 100%;
+      --gradient-hover:
+        180deg, rgba(0, 0, 0, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%;
+      --box-shadown:
+        0 11px 7px 0px rgba(0, 0, 0, 0.1), 0px 7px 7px 0px rgba(0, 0, 0, 0.4),
+        0px 4px 6px 0px rgba(0, 0, 0, 0.1), 0px 2px 4px 0px rgba(0, 0, 0, 0.26),
+        0px 0px 2px 0px rgba(0, 0, 0, 0.29),
+        0px 2px 3px 0px rgba(0, 0, 0, 0.06) inset;
+      --font-sans: "Rubik", sans-serif;
+    }
+  </style>
+
+  <body class="text-(--text) font-(--font-sans) bg-(--background-fundo)">
     <div id="root"></div>
-</body>
 
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/babel">
+      const textVariants = {
+        fontPadrao: "text-xl",
+        fontSecundario: "text-xl text-(--text-secundary)",
+        titulo: "text-2xl",
+        resultado: "text-4xl ",
+      };
 
-<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-<script type="text/babel">
+      function Text({
+        as = "span",
+        variant = "fontPadrao",
+        className,
+        children,
+        ...props
+      }) {
+        return React.createElement(
+          as,
+          {
+            className: `${textVariants[variant]} ${className ? className : ""}`,
+            ...props,
+          },
+          children,
+        );
+      }
 
-    function Button() {
+      const buttoVariants = {
+        default: "bg-(--background)",
+        primary: "bg-(--background-primary)",
+      };
+
+      function Button({ className, variant = "default", children, ...props }) {
         return (
-            <button className="bg-blue-900 text-black py-2 px-2 rounded   ">
-                Botao
+          <Text
+            as="button"
+            className={`
+                       flex justify-center items-center rounded-xl p-3 cursor-pointer
+                       text-(--text)
+                       bg-linear-(--gradient)
+                       hover:bg-linear-(--gradient-hover)
+                       shadow-(--box-shadown)
 
-            </button>
-        )
-    }
+                       ${buttoVariants[variant]}
+                       ${className ? className : ""}
+                   `}
+            {...props}
+          >
+            {children}
+          </Text>
+        );
+      }
 
-    function Enviadora() {
+      function Card({ children, className, ...props }) {
         return (
+          <div
+            className={`
+                       bg-(--background)
+                       shadow-(--box-shadown)
+                       rounded-2xl
+                   ${className ? className : ""}
+               `}
+          >
+            {children}
+          </div>
+        );
+      }
 
-            <div className="flex gap-2 p-2">
-                <Button />
-                <Button />
+      const buttons = [
+        [
+          { input: "CE" },
+          { input: "C", className: "flex-1 h-16" },
+          { input: "%" },
+          { input: "/", variant: "primary" },
+        ],
+        [
+          { input: "7" },
+          { input: "8" },
+          { input: "9" },
+          { input: "*", variant: "primary" },
+        ],
+        [
+          { input: "4" },
+          { input: "5" },
+          { input: "6" },
+          { input: "-", variant: "primary" },
+        ],
+        [
+          { input: "1" },
+          { input: "2" },
+          { input: "3" },
+          { input: "+", variant: "primary" },
+        ],
+        [
+          { input: "0", className: "flex-1 h-16" },
+          { input: "," },
+          { input: "=", className: " w-16 h-16 bg-[#7f45e2]" },
+        ],
+      ];
+
+      function CalculatorDisplay({ operacao, result }) {
+        return (
+          <div className="flex flex-col gap-2 px-[1.375rem] cursor-default select-none">
+            <Text
+              as="div"
+              variant="fontSecundario"
+              className="flex justify-end items-center h-7"
+            >
+              {result && operacao}
+            </Text>
+            <div className="flex items-center justify-between h-9">
+              <Text variant="fontSecundario">=</Text>
+              <Text variant="resultado">{result || operacao}</Text>
             </div>
-        )
-    }
+          </div>
+        );
+      }
 
-    const root = ReactDOM.createRoot(document.getElementById('root')).render(
+      function Calculator() {
+        const [operacao, setOperacao] = React.useState("");
+        const [result, setResult] = React.useState("");
+        function handleClick(input) {
+          if (input === "=") {
+            const resultadoOperacao = eval(operacao.replace(/,/g, "."));
+            const parsedResult = resultadoOperacao
+              .toString()
+              .replace(/\./g, ",");
+            setResult(parsedResult.toString());
+            return;
+          }
+          if (result) {
+            setOperacao(isNaN(input) ? `${result}${input}` : input);
 
-        <Enviadora />
-    );
+            setResult("");
+            return;
+          }
+          if (input === "," && !operacao.endsWith(",")) {
+            setOperacao(`${operacao},`);
+            return;
+          }
+          if (input === "C") {
+            setOperacao("");
+            setResult("");
+            return;
+          }
+          if (input === "CE") {
+            setResult("");
+            setOperacao(operacao.slice(0, -1));
+            return;
+          }
 
-</script>
+          setOperacao(`${operacao}${input}`);
+        }
+        return (
+          <Card className="flex flex-col gap-[1.625rem] w-[22.25rem] pt-14 px-8 pb-8">
+            <CalculatorDisplay operacao={operacao} result={result} />
+            <div className="flex flex-col gap-3">
+              {buttons.map((row, index) => (
+                <div key={`row ${index}`} className="flex gap-3 ">
+                  {row.map((button) => (
+                    <Button
+                      key={button.input}
+                      className={button.className || "w-16 h-16"}
+                      variant={button.variant}
+                      onClick={() => handleClick(button.input)}
+                    >
+                      {button.input}
+                    </Button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Card>
+        );
+      }
 
+      function Historico() {
+        return (
+          <Card className="w-full py-10 px-8 ">
+            <Text as="h1" variant="titulo" className="mb-4 ">
+              Histórico
+            </Text>
+            <ul className="flex flex-col gap-3">
+              <Text as="li">1 + 1 = 2</Text>
+              <Text as="li">1 + 1 = 2</Text>
+              <Text as="li">1 + 1 = 2</Text>
+            </ul>
+          </Card>
+        );
+      }
+
+      function App() {
+        return (
+          <main
+            className={`
+             py-28 px-4 sm:px-96 flex flex-col sm:flex-row
+             items-center sm:items-stretch
+              gap-2
+              `}
+          >
+            <Calculator />
+            <Historico />
+          </main>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root")).render(
+        <App />,
+      );
+    </script>
+  </body>
 </html>

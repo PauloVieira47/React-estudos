@@ -1,0 +1,11 @@
+{
+  "name": "react-estudos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "tutor": "node tutor-server.mjs"
+  },
+  "dependencies": {
+    "@cursor/sdk": "^1.0.17"
+  }
+}

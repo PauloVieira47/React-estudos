@@ -1,0 +1,2716 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Hooks — Fórum + Desafios (estilo Mimo)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        font-family: "Rubik", sans-serif;
+        background: linear-gradient(135deg, #807ece 0%, #462878 100%);
+        color: #ebebeb;
+        padding: 24px 16px 48px;
+      }
+      .app {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #2d2a37;
+        border-radius: 24px;
+        padding: 28px 26px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      }
+      .header h1 { font-size: 1.5rem; margin-bottom: 8px; }
+      .header p { color: #9ca3af; line-height: 1.6; font-size: 0.94rem; }
+      .modos { display: flex; gap: 8px; margin: 22px 0; flex-wrap: wrap; }
+      .modos button {
+        border: 2px solid #3b3650;
+        background: #1a1724;
+        color: #c4b5fd;
+        padding: 10px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.88rem;
+      }
+      .modos button.ativo {
+        background: #462878;
+        border-color: #807ece;
+        color: #fff;
+      }
+      .painel { display: none; }
+      .painel.ativo { display: block; }
+      .progress-wrap {
+        height: 8px;
+        background: #1a1724;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #807ece, #a78bfa);
+        transition: width 0.35s;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+        font-size: 0.85rem;
+        color: #c4b5fd;
+      }
+      .badge {
+        display: inline-block;
+        background: #462878;
+        color: #ddd6fe;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 999px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+      .badge.verde { background: #14532d; color: #bbf7d0; }
+      .badge.amarelo { background: #422006; color: #fde68a; }
+      .badge.vermelho { background: #7f1d1d; color: #fecaca; }
+      .badge.intro { background: #1e3a5f; color: #93c5fd; }
+      .badge.completar { background: #134e4a; color: #6ee7b7; }
+      .lacunas-lista {
+        margin: 10px 0 0 18px;
+        color: #a78bfa;
+        font-size: 0.88rem;
+      }
+      .lacunas-lista li { margin-bottom: 6px; }
+      h2 { font-size: 1.15rem; line-height: 1.5; margin-bottom: 14px; }
+      pre {
+        background: #1a1724;
+        padding: 16px;
+        border-radius: 12px;
+        overflow-x: auto;
+        margin: 12px 0;
+        color: #c4b5fd;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        border: 1px solid #3b3650;
+      }
+      code {
+        background: #1a1724;
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: #a78bfa;
+        font-size: 0.88em;
+      }
+      .btn {
+        border: none;
+        background: linear-gradient(180deg, #807ece, #6b6bb8);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin: 8px 8px 0 0;
+      }
+      .btn.sec { background: #3b3650; }
+      .btn.ghost { background: transparent; border: 2px solid #3b3650; }
+
+      /* Fórum */
+      .forum-busca {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 2px solid #3b3650;
+        background: #1a1724;
+        color: #ebebeb;
+        font-family: inherit;
+        margin-bottom: 16px;
+      }
+      .forum-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+      .forum-tags button {
+        border: 1px solid #3b3650;
+        background: #1a1724;
+        color: #9ca3af;
+        padding: 6px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-family: inherit;
+      }
+      .forum-tags button.ativo { border-color: #807ece; color: #ddd6fe; }
+      .forum-lista { display: flex; flex-direction: column; gap: 14px; }
+      .forum-card {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .forum-card summary {
+        padding: 16px 18px;
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .forum-card summary::-webkit-details-marker { display: none; }
+      .forum-card summary::before { content: "▶"; font-size: 0.7rem; color: #807ece; }
+      .forum-card[open] summary::before { content: "▼"; }
+      .forum-corpo {
+        padding: 0 18px 20px;
+        line-height: 1.75;
+        color: #d1d5db;
+        font-size: 0.93rem;
+        border-top: 1px solid #3b3650;
+      }
+      .forum-corpo p { margin: 12px 0; }
+      .forum-corpo ul, .forum-corpo ol { margin: 10px 0 10px 22px; }
+      .forum-corpo li { margin-bottom: 6px; }
+      .forum-corpo h4 {
+        color: #f3f4f6;
+        margin: 18px 0 8px;
+        font-size: 0.95rem;
+      }
+      .paulo {
+        background: #2d2a37;
+        border-left: 4px solid #807ece;
+        padding: 14px 16px;
+        border-radius: 0 10px 10px 0;
+        margin: 14px 0;
+        color: #e5e7eb;
+      }
+      .erro-comum {
+        background: #422006;
+        border-left: 4px solid #f59e0b;
+        padding: 12px 14px;
+        border-radius: 0 10px 10px 0;
+        margin: 12px 0;
+        color: #fde68a;
+        font-size: 0.88rem;
+      }
+
+      /* Desafios */
+      .desafio-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+      .desafio-nav button {
+        width: 34px; height: 34px;
+        border: 2px solid #3b3650;
+        background: #1a1724;
+        color: #9ca3af;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.8rem;
+        font-family: inherit;
+      }
+      .desafio-nav button.ativo { background: #462878; border-color: #807ece; color: #fff; }
+      .desafio-nav button.ok { border-color: #22c55e; color: #86efac; }
+      .explica-desafio {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 18px;
+        line-height: 1.7;
+        color: #d1d5db;
+        font-size: 0.92rem;
+      }
+      .explica-desafio h3 { color: #f9fafb; margin-bottom: 10px; font-size: 1rem; }
+      .explica-desafio h4 {
+        color: #c4b5fd;
+        margin: 18px 0 8px;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+      .doc-bloco {
+        background: #0f0d14;
+        border: 1px solid #3b3650;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin: 12px 0;
+      }
+      .doc-bloco.porque { border-left: 4px solid #807ece; }
+      .doc-bloco.como { border-left: 4px solid #22c55e; }
+      .doc-bloco.agora { border-left: 4px solid #f59e0b; }
+      .forum-corpo h4 { margin-top: 20px; }
+      .forum-corpo .doc-tabela {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 0.88rem;
+      }
+      .forum-corpo .doc-tabela th,
+      .forum-corpo .doc-tabela td {
+        border: 1px solid #3b3650;
+        padding: 10px 12px;
+        text-align: left;
+      }
+      .forum-corpo .doc-tabela th { background: #2d2a37; color: #c4b5fd; }
+      .linha-passo {
+        display: flex;
+        gap: 12px;
+        margin: 10px 0;
+        align-items: flex-start;
+      }
+      .linha-passo .num {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        background: #462878;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+      .passos {
+        background: #1a1724;
+        border-radius: 14px;
+        padding: 16px 18px;
+        margin-bottom: 16px;
+        line-height: 1.65;
+      }
+      .passos ol { margin: 10px 0 0 20px; }
+      .passos li { margin-bottom: 8px; }
+      .passos li.ok { color: #86efac; }
+      .mimo-chip {
+        display: inline-block;
+        background: #422006;
+        color: #fde68a;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 10px;
+      }
+      .explica-desafio p { margin-bottom: 8px; }
+      .explica-desafio pre { margin: 10px 0; font-size: 0.8rem; }
+      .quiz-mimo {
+        background: #0f0d14;
+        border: 1px solid #3b3650;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+      }
+      .quiz-mimo h4 {
+        color: #c4b5fd;
+        font-size: 0.88rem;
+        margin-bottom: 10px;
+      }
+      .quiz-pergunta { margin-bottom: 14px; }
+      .quiz-pergunta p { font-size: 0.9rem; margin-bottom: 8px; color: #e5e7eb; }
+      .quiz-opcoes { display: flex; flex-direction: column; gap: 6px; }
+      .quiz-opcoes button {
+        text-align: left;
+        border: 2px solid #3b3650;
+        background: #1a1724;
+        color: #d1d5db;
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.86rem;
+      }
+      .quiz-opcoes button:hover { border-color: #807ece; }
+      .quiz-opcoes button.acerto { border-color: #22c55e; background: #14532d; color: #bbf7d0; }
+      .quiz-opcoes button.erro { border-color: #ef4444; background: #7f1d1d; color: #fecaca; }
+      .quiz-feedback { font-size: 0.82rem; margin-top: 6px; color: #9ca3af; }
+      .duvida-wrap {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin: 20px 0 16px;
+      }
+      .duvida-wrap label {
+        display: block;
+        font-size: 0.88rem;
+        color: #c4b5fd;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .duvida-wrap textarea {
+        width: 100%;
+        min-height: 72px;
+        background: #0f0d14;
+        border: 2px solid #3b3650;
+        border-radius: 12px;
+        color: #e5e7eb;
+        padding: 12px 14px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: vertical;
+      }
+      .duvida-wrap textarea:focus {
+        outline: none;
+        border-color: #807ece;
+      }
+      .tutor-status {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .tutor-status code { font-size: 0.78rem; }
+      .duvida-botoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+      .duvida-loading { color: #c4b5fd; font-size: 0.88rem; margin-top: 10px; }
+      .duvida-resposta {
+        margin-top: 14px;
+        padding: 14px 16px;
+        background: #0f0d14;
+        border-radius: 12px;
+        border-left: 4px solid #807ece;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        color: #d1d5db;
+        display: none;
+      }
+      .duvida-resposta.vis { display: block; }
+      .duvida-resposta h5 { color: #a78bfa; margin-bottom: 8px; font-size: 0.85rem; }
+      .duvida-resposta pre {
+        margin: 10px 0;
+        font-size: 0.78rem;
+        padding: 12px;
+      }
+      .duvida-resposta .aviso {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #3b3650;
+      }
+      .reset-wrap {
+        margin-bottom: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .reset-wrap .hint { font-size: 0.8rem; color: #9ca3af; }
+      .btn.perigo {
+        background: linear-gradient(180deg, #991b1b, #7f1d1d);
+      }
+      .refs-forum { margin: 12px 0; font-size: 0.85rem; }
+      .refs-forum button {
+        background: #3b3650;
+        border: none;
+        color: #c4b5fd;
+        padding: 4px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        margin: 2px 4px 2px 0;
+        font-family: inherit;
+      }
+      .editor-wrap label {
+        display: block;
+        font-size: 0.85rem;
+        color: #c4b5fd;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      textarea {
+        width: 100%;
+        min-height: 260px;
+        background: #0f0d14;
+        color: #e2e8f0;
+        border: 2px solid #3b3650;
+        border-radius: 14px;
+        padding: 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        resize: vertical;
+      }
+      textarea:focus { outline: none; border-color: #807ece; }
+      .feedback {
+        display: none;
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 14px;
+        line-height: 1.6;
+        font-size: 0.92rem;
+      }
+      .feedback.ok { display: block; background: #14532d; border: 1px solid #22c55e; color: #bbf7d0; }
+      .feedback.parcial { display: block; background: #422006; border: 1px solid #f59e0b; color: #fde68a; }
+      .feedback.erro { display: block; background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; }
+      .solucao-box { display: none; margin-top: 14px; }
+      .solucao-box.vis { display: block; }
+
+      .preview-wrap {
+        margin: 18px 0;
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        padding: 16px;
+      }
+      .preview-wrap label {
+        display: block;
+        font-size: 0.85rem;
+        color: #c4b5fd;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .preview-frame {
+        width: 100%;
+        min-height: 200px;
+        border: 2px solid #3b3650;
+        border-radius: 12px;
+        background: #212128;
+      }
+      .preview-erro {
+        display: none;
+        margin-top: 10px;
+        padding: 12px 14px;
+        background: #7f1d1d;
+        border: 1px solid #ef4444;
+        border-radius: 10px;
+        color: #fecaca;
+        font-size: 0.85rem;
+        line-height: 1.55;
+        font-family: "JetBrains Mono", monospace;
+        white-space: pre-wrap;
+      }
+      .preview-erro.vis { display: block; }
+      .preview-ok {
+        margin-top: 8px;
+        font-size: 0.82rem;
+        color: #86efac;
+      }
+      .erro-item {
+        margin: 8px 0;
+        padding: 10px 12px;
+        background: rgba(0,0,0,0.25);
+        border-radius: 8px;
+        border-left: 3px solid #ef4444;
+      }
+      .erro-item strong { color: #fca5a5; }
+
+      .layout-estudo { display: flex; flex-direction: column; gap: 14px; }
+      @media (min-width: 900px) {
+        .layout-estudo {
+          display: grid;
+          grid-template-columns: minmax(300px, 34%) 1fr;
+          gap: 18px;
+          align-items: start;
+        }
+      }
+      .mini-tabela {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 0.86rem;
+      }
+      .mini-tabela th,
+      .mini-tabela td {
+        border: 1px solid #3b3650;
+        padding: 8px 10px;
+        text-align: left;
+      }
+      .mini-tabela th { color: #a78bfa; background: #0f0d14; }
+      .missao-box {
+        background: linear-gradient(160deg, #132a22 0%, #1a1724 100%);
+        border: 2px solid #22c55e;
+        border-radius: 14px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+      }
+      .missao-box h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #6ee7b7;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .missao-box ol {
+        margin: 0 0 0 4px;
+        padding: 0;
+        list-style: none;
+        counter-reset: missao;
+      }
+      .missao-box ol li {
+        counter-increment: missao;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        font-size: 0.94rem;
+        line-height: 1.5;
+        color: #f3f4f6;
+      }
+      .missao-box ol li::before {
+        content: counter(missao);
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        background: #22c55e;
+        color: #052e16;
+        font-weight: 700;
+        font-size: 0.82rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .missao-nota {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 8px;
+        font-size: 0.84rem;
+        color: #d1d5db;
+      }
+      .quiz-area {
+        background: #1e1b28;
+        border: 2px solid #6b5b95;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+      }
+      .quiz-area h4 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #c4b5fd;
+        margin-bottom: 12px;
+      }
+      .quiz-area h4 span {
+        display: block;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        color: #9ca3af;
+        font-size: 0.78rem;
+        margin-top: 4px;
+      }
+      .editor-cabecalho {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+      .editor-cabecalho label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #fde68a;
+      }
+      .editor-cabecalho span {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+      .bloco {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 0;
+      }
+      .bloco-titulo {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
+        margin-bottom: 10px;
+      }
+      .bloco-titulo.conceito { color: #93c5fd; }
+      .bloco-titulo.pratica { color: #6ee7b7; }
+      .texto-aprender {
+        font-size: 0.94rem;
+        line-height: 1.65;
+        color: #f3f4f6;
+      }
+      .texto-aprender p { margin-bottom: 8px; }
+      .porque-box {
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: #0f0d14;
+        border-radius: 10px;
+        border-left: 3px solid #22c55e;
+        font-size: 0.88rem;
+        color: #bbf7d0;
+        display: none;
+      }
+      .porque-box.vis { display: block; }
+      .bloco-detalhes {
+        margin-top: 10px;
+        border: 1px solid #3b3650;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .bloco-detalhes summary {
+        padding: 10px 12px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        color: #9ca3af;
+        background: #0f0d14;
+        list-style: none;
+      }
+      .bloco-detalhes summary::-webkit-details-marker { display: none; }
+      .bloco-detalhes .explica-desafio {
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        padding: 12px 14px;
+        font-size: 0.88rem;
+      }
+      .passos.compact {
+        margin-bottom: 12px;
+        padding: 12px 14px;
+        font-size: 0.88rem;
+      }
+      .acoes-principais {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .acoes-principais .btn { margin: 0; }
+      .preview-wrap.compact { margin-bottom: 10px; }
+      .preview-wrap.compact label { font-size: 0.82rem; margin-bottom: 6px; }
+      .preview-frame { height: 140px; }
+      .editor-wrap textarea { min-height: 160px; }
+      .editor-wrap textarea.readonly {
+        opacity: 0.92;
+        cursor: default;
+        border-color: #3b3650;
+        background: #14121c;
+      }
+      .bloco-opcional {
+        border: 1px dashed #3b3650;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .bloco-opcional summary {
+        padding: 12px 14px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        color: #c4b5fd;
+        font-weight: 600;
+        list-style: none;
+        background: #1a1724;
+      }
+      .bloco-opcional summary::-webkit-details-marker { display: none; }
+      .bloco-opcional .interno { padding: 0 14px 14px; }
+      .tutor-status { font-size: 0.78rem; margin-bottom: 8px; }
+      .duvida-wrap { margin: 0; padding: 0; background: transparent; border: none; }
+      .duvida-wrap textarea { min-height: 56px; }
+      .header-compact h1 { font-size: 1.25rem; }
+      .header-compact p { font-size: 0.85rem; }
+      .topo-desafio { margin-bottom: 12px; }
+      .topo-desafio h2 { margin-bottom: 8px; font-size: 1.05rem; }
+      .refs-forum { font-size: 0.8rem; margin-bottom: 8px; }
+      .refs-forum:empty { display: none; }
+      .reset-wrap { margin-bottom: 8px; }
+      .reset-wrap .hint { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <div class="header header-compact">
+        <h1>Aprender React — Contador</h1>
+        <p><strong>Conceito</strong> à esquerda · <strong>Missão → Perguntas → Código → Preview</strong> à direita (nessa ordem).</p>
+      </div>
+
+      <div class="modos">
+        <button type="button" class="ativo" id="btnDesafios">💻 Desafios</button>
+        <button type="button" id="btnForum">📖 Fórum (referência)</button>
+      </div>
+
+      <!-- DESAFIOS -->
+      <div class="painel ativo" id="painelDesafios">
+        <div class="progress-wrap"><div class="progress-bar" id="barDesafio"></div></div>
+        <div class="meta">
+          <span id="metaDesafio"></span>
+          <span id="statsDesafio"></span>
+        </div>
+        <div class="desafio-nav" id="navDesafios"></div>
+
+        <div class="topo-desafio">
+          <span class="badge" id="badgeNivel"></span>
+          <h2 id="tituloDesafio"></h2>
+          <div class="refs-forum" id="refsForum"></div>
+        </div>
+
+        <div class="layout-estudo">
+          <div class="col-aprender">
+            <section class="bloco">
+              <div class="bloco-titulo conceito">Conceito</div>
+              <div class="texto-aprender" id="aprenderDesafio"></div>
+              <details class="bloco-detalhes">
+                <summary>Referência extra</summary>
+                <div class="explica-desafio" id="explicaDesafio"></div>
+              </details>
+            </section>
+          </div>
+
+          <div class="col-fazer">
+            <section class="bloco">
+              <div class="bloco-titulo pratica">Prática</div>
+
+              <div id="missaoDesafio" class="missao-box"></div>
+              <div class="quiz-mimo quiz-area" id="quizDesafio" style="display: none"></div>
+
+              <div class="editor-wrap">
+                <div class="editor-cabecalho">
+                  <label for="editor">Código</label>
+                  <span id="editorHint"></span>
+                </div>
+                <textarea id="editor" spellcheck="false"></textarea>
+              </div>
+
+              <div class="preview-wrap compact">
+                <label>Resultado na tela</label>
+                <iframe id="previewFrame" class="preview-frame" title="Preview React" sandbox="allow-scripts allow-same-origin"></iframe>
+                <div class="preview-erro" id="previewErro"></div>
+                <p class="preview-ok" id="previewOk" style="display:none">Preview ok.</p>
+              </div>
+
+              <div class="acoes-principais">
+                <button type="button" class="btn" id="btnPreview">▶ Preview</button>
+                <button type="button" class="btn" id="btnVerificar">Verificar</button>
+                <button type="button" class="btn sec" id="btnDica">Dica</button>
+                <button type="button" class="btn ghost" id="btnSolucao">Solução</button>
+                <button type="button" class="btn" id="btnProximo" style="display: none">Próximo →</button>
+              </div>
+
+              <div class="porque-box" id="porqueBox"></div>
+              <div class="feedback" id="feedback"></div>
+              <details class="bloco-detalhes" id="solucaoDetails" style="display:none">
+                <summary>Ver solução (só se travar)</summary>
+                <div class="solucao-box vis" id="solucaoBox"><pre id="solucaoPre"></pre></div>
+              </details>
+            </section>
+
+            <details class="bloco-opcional" id="duvidaDetails">
+              <summary>③ Dúvida? (opcional — não é o exercício)</summary>
+              <div class="interno">
+                <div class="duvida-wrap">
+                  <textarea id="inputDuvida" placeholder="Ex: não entendi o que é useState..."></textarea>
+                  <p class="tutor-status" id="tutorStatus"></p>
+                  <div class="duvida-botoes">
+                    <button type="button" class="btn sec" id="btnExplicar">Explicar</button>
+                    <button type="button" class="btn ghost" id="btnCopiarCursor">Copiar pro Cursor</button>
+                  </div>
+                  <div class="duvida-resposta" id="duvidaResposta"></div>
+                </div>
+              </div>
+            </details>
+
+            <details class="bloco-opcional">
+              <summary>Opções (zerar progresso / tutor IA)</summary>
+              <div class="interno">
+                <button type="button" class="btn perigo" id="btnZerar">↺ Começar do zero</button>
+                <p class="tutor-status" id="tutorSetup" style="margin-top:10px"></p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- FÓRUM -->
+      <div class="painel" id="painelForum">
+        <input type="search" class="forum-busca" id="buscaForum" placeholder="Buscar: useState, map, spread, onClick..." />
+        <div class="forum-tags" id="tagsForum"></div>
+        <div class="forum-lista" id="listaForum"></div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script>
+      const forum = [
+        {
+          id: "useState",
+          tags: ["hook", "básico"],
+          titulo: "useState — Referência completa",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>useState</code> é o hook mais usado do React. Ele guarda um valor que pode mudar com o tempo e, quando muda, o React redesenha o componente na tela.</div>
+
+            <h4>📌 O que é?</h4>
+            <p>Função do React: <code>React.useState(valorInicial)</code>. Retorna sempre um array com exatamente 2 posições.</p>
+
+            <h4>📖 Sintaxe</h4>
+            <pre>const [contador, setContador] = React.useState(0);</pre>
+
+            <table class="doc-tabela">
+              <tr><th>Parte</th><th>Tipo</th><th>Função</th></tr>
+              <tr><td><code>contador</code></td><td>qualquer</td><td>Valor atual. Você LÊ na tela e na lógica. Não altere direto.</td></tr>
+              <tr><td><code>setContador</code></td><td>função</td><td>Única forma correta de MUDAR o valor. React agenda re-render.</td></tr>
+              <tr><td><code>0</code></td><td>inicial</td><td>Só usado na 1ª vez que o componente aparece. Depois ignorado.</td></tr>
+            </table>
+
+            <h4>🎯 Tipos de valor inicial</h4>
+            <pre>useState(0)        // número
+useState("")       // texto
+useState([])       // array vazio — listas/histórico
+useState(false)    // boolean — ligar/desligar
+useState({ a: 1 }) // objeto</pre>
+
+            <h4>⚙️ O que acontece por baixo (fluxo)</h4>
+            <ol>
+              <li>Componente renderiza → contador vale 0</li>
+              <li>Usuário clica → setContador(5) é chamado</li>
+              <li>React guarda "próximo valor = 5" e marca componente para re-render</li>
+              <li>Componente roda de novo → contador agora é 5 → JSX mostra 5</li>
+            </ol>
+
+            <div class="erro-comum">❌ contador++ ou contador = 5 — React não sabe que mudou.<br>✅ setContador(contador + 1) ou setContador(5)</div>
+          `,
+        },
+        {
+          id: "setContador",
+          tags: ["hook", "básico"],
+          titulo: "setContador — a função que atualiza",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>setContador</code> não muda o número na hora na linha de baixo. Ela <em>pede</em> pro React atualizar. Na próxima renderização, <code>contador</code> vem novo.</div>
+            <h4>Duas formas de usar</h4>
+            <pre>setContador(5);                    // valor fixo
+setContador(contador + 1);         // lê contador AGORA
+setContador((prev) => prev + 1);   // React passa o mais recente</pre>
+            <p>Um clique com uma chamada: as duas formas de somar 1 funcionam igual.</p>
+            <p>Várias chamadas no <strong>mesmo</strong> clique: use <code>(prev) => prev + 1</code>.</p>
+          `,
+        },
+        {
+          id: "jsx-chaves",
+          tags: ["jsx", "básico"],
+          titulo: "Chaves { } no JSX — mostrar variável",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> JSX parece HTML, mas dentro de <code>{ }</code> é JavaScript puro.</div>
+            <pre>&lt;p&gt;Contador: {contador}&lt;/p&gt;
+&lt;p&gt;Dobro: {contador * 2}&lt;/p&gt;</pre>
+            <p>Sem <code>{contador}</code>, o usuário não vê o número — mesmo que o useState exista.</p>
+            <div class="erro-comum">❌ <code>&lt;p&gt;contador&lt;/p&gt;</code> — mostra a palavra "contador", não o número.<br>❌ <code>{contador = 0}</code> — isso é atribuição, não leitura.</div>
+          `,
+        },
+        {
+          id: "onClick",
+          tags: ["evento", "básico"],
+          titulo: "onClick — quando clica no botão",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>onClick</code> recebe uma <strong>função</strong>. Quando o usuário clica, essa função roda.</div>
+            <pre>&lt;button onClick={() => setContador(contador + 1)}&gt;
+  adicionar
+&lt;/button&gt;</pre>
+            <ul>
+              <li><code>onClick=</code> — prop de evento (C maiúsculo no React)</li>
+              <li><code>{ ... }</code> — dentro vai JavaScript</li>
+              <li><code>() => ...</code> — arrow function (função sem nome)</li>
+            </ul>
+            <div class="erro-comum">❌ <code>onClick={setContador(contador+1)}</code> — roda NA HORA do render, não no clique!<br>✅ <code>onClick={() => setContador(...)}</code></div>
+          `,
+        },
+        {
+          id: "arrow",
+          tags: ["javascript", "básico"],
+          titulo: "() => — arrow function (função seta)",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> é só uma forma curta de escrever função. No React você usa MUITO dentro de onClick.</div>
+            <pre>// Mesma ideia:
+function somar() { return contador + 1; }
+const somar = () => contador + 1;
+
+// No botão — precisa ser função, não resultado:
+onClick={() => setContador(contador + 1)}</pre>
+            <p>Os parênteses <code>()</code> = "sem argumentos". A seta <code>=&gt;</code> = "retorna / executa".</p>
+          `,
+        },
+        {
+          id: "prev",
+          tags: ["hook", "médio"],
+          titulo: "(prev) => — Atualização funcional do state",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> quando você passa uma <strong>função</strong> pro setState em vez de um valor direto, o React chama essa função e passa o state mais recente como argumento.</div>
+
+            <h4>📌 Sintaxe</h4>
+            <pre>setContador((prev) => prev + 1);</pre>
+            <p><code>prev</code> = nome que você escolhe. Pode ser <code>c</code>, <code>atual</code>, <code>h</code> (no historico).</p>
+
+            <h4>🎯 Quando usar?</h4>
+            <ul>
+              <li>Novo valor depende do anterior</li>
+              <li>Várias chamadas setState seguidas no mesmo evento</li>
+              <li>Dentro de setContador quando também chama setHistorico (desafio 7)</li>
+            </ul>
+
+            <h4>🧪 Comparação visual</h4>
+            <pre>// Forma direta — lê contador da renderização atual
+setContador(contador + 1);
+
+// Forma funcional — React passa o valor atualizado
+setContador((prev) => prev + 1);</pre>
+
+            <h4>Desafio 7 — por que prev no setContador?</h4>
+            <pre>setContador((prev) => {
+  const novo = prev + 1;
+  setHistorico((h) => [...h, novo]);
+  return novo;
+});</pre>
+            <p>Aqui <code>prev</code> é o contador antes do clique. Você calcula <code>novo</code>, salva no histórico, e <code>return novo</code> diz pro React qual será o próximo contador.</p>
+          `,
+        },
+        {
+          id: "spread-array",
+          tags: ["javascript", "médio"],
+          titulo: "[...array, item] — Spread Operator em arrays",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> você já viu <code>...</code> em props. Em array, o nome oficial é <strong>spread operator</strong> (operador de espalhamento). Ele <em>copia</em> cada item de um array para dentro de outro array novo.</div>
+
+            <h4>📌 O que é?</h4>
+            <p>Sintaxe JavaScript: <code>...</code> antes de um array. Significa: "pega todos os elementos desse array e coloca aqui, um por um".</p>
+
+            <h4>🎯 Para que serve no React?</h4>
+            <p>Quando você guarda uma <strong>lista</strong> no <code>useState</code> (histórico, tarefas, mensagens), o React só atualiza a tela se você passar um <strong>array novo</strong>. O spread monta esse array novo copiando o antigo + adicionando item.</p>
+
+            <h4>📖 Sintaxe</h4>
+            <pre>const antigo = [10, 20, 30];
+const novo = [...antigo, 40];
+// novo = [10, 20, 30, 40]
+// antigo continua [10, 20, 30] — não mudou!</pre>
+
+            <h4>🔍 Linha por linha — setHistorico</h4>
+            <pre>setHistorico((prev) => [...prev, 5]);</pre>
+            <table class="doc-tabela">
+              <tr><th>Parte</th><th>O que faz</th></tr>
+              <tr><td><code>setHistorico</code></td><td>Função que o React te deu quando você fez useState([]). É ela que pede pra atualizar o histórico.</td></tr>
+              <tr><td><code>(prev) =></code></td><td>Forma funcional: React te entrega o array <strong>atual</strong> na variável prev (pode chamar de h, lista, etc).</td></tr>
+              <tr><td><code>[...prev,</code></td><td>Cria array NOVO. Copia cada item que já estava em prev.</td></tr>
+              <tr><td><code>5]</code></td><td>Coloca o número 5 no final do array novo.</td></tr>
+            </table>
+
+            <h4>🧪 Exemplo completo — antes e depois</h4>
+            <pre>// Estado inicial
+historico = []
+
+// Usuário clica adicionar, contador vai pra 1
+setHistorico(prev => [...prev, 1])
+// historico vira [1]
+
+// Clica de novo, contador vai pra 2
+setHistorico(prev => [...prev, 2])
+// prev era [1] → novo array [1, 2]</pre>
+
+            <h4>❌ Por que NÃO usar .push()?</h4>
+            <pre>historico.push(5);      // muta o MESMO array na memória
+setHistorico(historico); // React compara: "é o mesmo objeto?" → pode ignorar</pre>
+            <div class="erro-comum">push altera o array original. React muitas vezes não re-renderiza porque a referência não mudou. Spread cria referência nova → React vê mudança → atualiza tela.</div>
+
+            <h4>✅ Quando usar</h4>
+            <ul>
+              <li>Adicionar item no final da lista</li>
+              <li>Copiar lista e mudar algo (com filter/map antes ou depois)</li>
+              <li>Qualquer atualização de array em useState</li>
+            </ul>
+          `,
+        },
+        {
+          id: "spread-obj",
+          tags: ["javascript", "médio"],
+          titulo: "{ ...obj, chave: valor } — spread em objeto",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> mesma ideia do array, mas com chaves de objeto.</div>
+            <pre>const user = { nome: "Ana", idade: 20 };
+setUser({ ...user, nome: "Bia" });
+// { nome: "Bia", idade: 20 } — objeto NOVO</pre>
+            <p>Copia tudo e troca só o que você passou depois do spread.</p>
+          `,
+        },
+        {
+          id: "array-lista",
+          tags: ["básico", "javascript"],
+          titulo: "[] map key — resumo rápido (estilo Mimo)",
+          corpo: `
+            <p><strong>[]</strong> = lista. Vazia: <code>[]</code>. Com itens: <code>[1, 2, 3]</code>.</p>
+            <p><strong>.length</strong> = quantos itens. <strong>.join(", ")</strong> = vira texto "1, 2, 3".</p>
+            <p><strong>.map</strong> = cada item vira um &lt;li&gt; na tela.</p>
+            <p><strong>key={i}</strong> = crachá pro React (i = 0, 1, 2...).</p>
+            <pre>{historico.map((n, i) => &lt;li key={i}&gt;{n}&lt;/li&gt;)}</pre>
+          `,
+        },
+        {
+          id: "map",
+          tags: ["javascript", "médio"],
+          titulo: ".map() — Referência completa",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>map</code> é método de array do JavaScript. No React você usa pra transformar cada item da lista em um pedaço de tela (JSX).</div>
+
+            <h4>📌 O que é?</h4>
+            <p><code>array.map(callback)</code> — percorre o array do início ao fim, executa a função em cada item, e devolve um <strong>novo array</strong> com os retornos.</p>
+
+            <h4>📖 Sintaxe</h4>
+            <pre>historico.map((item, indice) => {
+  return &lt;li key={indice}&gt;{item}&lt;/li&gt;;
+})
+
+// Forma curta (uma linha):
+historico.map((item, i) => &lt;li key={i}&gt;{item}&lt;/li&gt;)</pre>
+
+            <table class="doc-tabela">
+              <tr><th>Parâmetro</th><th>Significado</th></tr>
+              <tr><td><code>item</code> (1º)</td><td>O valor atual: 1, depois 2, depois 3...</td></tr>
+              <tr><td><code>indice</code> (2º)</td><td>Posição: 0, 1, 2... (opcional mas útil pro key)</td></tr>
+              <tr><td>retorno</td><td>O que você return vira um item do array novo (no React: elemento JSX)</td></tr>
+            </table>
+
+            <h4>🧪 Exemplo — historico = [1, 2, 3]</h4>
+            <pre>historico.map((n, i) => &lt;li key={i}&gt;Valor: {n}&lt;/li&gt;)
+
+// React recebe equivalente a:
+// [&lt;li key=0&gt;Valor: 1&lt;/li&gt;, &lt;li key=1&gt;Valor: 2&lt;/li&gt;, ...]
+// E desenha os três &lt;li&gt; na tela</pre>
+
+            <h4>🔑 Por que key={i}?</h4>
+            <p>React precisa identificar cada linha da lista. Quando a lista muda, ele sabe qual item atualizar. Em projetos reais use id único; em estudo, <code>key={i}</code> serve.</p>
+
+            <h4>map vs forEach</h4>
+            <p><code>forEach</code> só executa — não retorna array novo. <code>map</code> retorna — por isso funciona dentro do JSX com <code>{ }</code>.</p>
+          `,
+        },
+        {
+          id: "filter",
+          tags: ["javascript", "avançado"],
+          titulo: ".filter() — remover itens da lista",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> filter mantém só o que passar no teste. Devolve array <strong>novo</strong> menor.</div>
+            <pre>setItens((prev) => prev.filter((item) => item !== valorRemover));
+setItens((prev) => prev.filter((_, i) => i !== 1));</pre>
+            <p><code>_</code> = "não vou usar esse parâmetro" (o item, só quero o índice).</p>
+          `,
+        },
+        {
+          id: "boolean-state",
+          tags: ["hook", "médio"],
+          titulo: "useState(true/false) — ligar/desligar",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> state não é só número. Boolean guarda coisa tipo "histórico visível?" ou "modo escuro?".</div>
+            <pre>const [mostrar, setMostrar] = React.useState(true);
+
+setMostrar((m) => !m);  // inverte: true→false, false→true
+
+{mostrar && &lt;ul&gt;...&lt;/ul&gt;}</pre>
+            <p><code>&&</code> no JSX: se <code>mostrar</code> for true, renderiza o que vem depois. Se false, não renderiza nada.</p>
+          `,
+        },
+        {
+          id: "props",
+          tags: ["react", "médio"],
+          titulo: "Props — dados que vêm de fora",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> props = o pai passa pro filho. State = memória <strong>dentro</strong> do componente.</div>
+            <pre>function Contador({ passo = 1 }) {
+  const [n, setN] = React.useState(0);
+  // passo veio de fora — você lê, não altera direto
+}
+
+&lt;Contador passo={5} /&gt;</pre>
+            <p><code>passo = 1</code> na desestruturação = valor padrão se o pai não passar.</p>
+          `,
+        },
+        {
+          id: "math-max",
+          tags: ["javascript", "básico"],
+          titulo: "Math.max(0, x) — não deixar negativo",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>Math.max(a, b)</code> devolve o maior dos dois.</div>
+            <pre>Math.max(0, contador - 1)  // se der -1, fica 0
+Math.max(1, passo - 1)     // passo mínimo 1</pre>
+          `,
+        },
+        {
+          id: "componente",
+          tags: ["react", "básico"],
+          titulo: "Componente — function que retorna JSX",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> teu <code>Contador</code> é um componente: função com nome maiúsculo que retorna HTML-like (JSX).</div>
+            <pre>function Contador() {
+  return &lt;div&gt;...&lt;/div&gt;;
+}
+
+function App() {
+  return (
+    &lt;main&gt;
+      &lt;Contador /&gt;
+    &lt;/main&gt;
+  );
+}</pre>
+            <p><code>&lt;Contador /&gt;</code> = "usa o componente Contador aqui".</p>
+          `,
+        },
+        {
+          id: "regras-hooks",
+          tags: ["hook", "avançado"],
+          titulo: "Regras dos Hooks",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> três regras simples — quebra uma delas e o app buga estranho.</div>
+            <ol>
+              <li>Só chame hooks no <strong>topo</strong> do componente (nunca dentro de if/for)</li>
+              <li>Só em <strong>componentes React</strong> ou hooks customizados (useAlgo)</li>
+              <li>Sempre na <strong>mesma ordem</strong> a cada render</li>
+            </ol>
+            <p>Valor inicial <code>useState(inicial)</code> só vale na <strong>primeira montagem</strong> — prop que muda depois não atualiza o state sozinha.</p>
+          `,
+        },
+      ];
+
+      const desafios = [
+        {
+          modo: "intro",
+          nivel: "intro",
+          nivelClass: "intro",
+          refs: ["useState", "componente"],
+          titulo: "Desafio 1 — Só olhar (código já funciona)",
+          aprender: `
+            <p>Um contador em React guarda um número na <strong>memória do componente</strong> e redesenha a tela quando esse número muda.</p>
+            <table class="mini-tabela">
+              <tr><th>Código</th><th>Papel</th></tr>
+              <tr><td><code>useState(0)</code></td><td>Cria a memória (começa em 0)</td></tr>
+              <tr><td><code>{contador}</code></td><td>Mostra o valor no JSX</td></tr>
+              <tr><td><code>setContador(...)</code></td><td>Atualiza a memória (ex: no clique)</td></tr>
+            </table>
+            <p>Neste desafio o arquivo já vem pronto — você observa o fluxo antes de editar.</p>`,
+          porque: "React compara o state novo com o anterior e atualiza só o pedaço da interface que depende dele — por isso o contador muda sem recarregar a página.",
+          explica: `<p>Linha a linha: <code>useState</code> declara o par <code>[valor, setValor]</code>. O botão chama <code>setContador</code> com função <code>(c) => c + 1</code> para não depender do valor “velho” em cliques rápidos.</p>`,
+          quiz: [
+            { pergunta: "De onde vem o número exibido em Contador: {contador}?", opcoes: ["Do state (useState)", "Do HTML estático", "Do CSS"], correta: 0 },
+            { pergunta: "O que setContador faz neste exemplo?", opcoes: ["Atualiza o valor guardado no state", "Apaga o componente", "Cria o botão na tela"], correta: 0 },
+          ],
+          passos: [
+            "Abaixo, clique <strong>Preview</strong> e veja o contador na caixa verde",
+            "Clique <strong>adicionar</strong> no app e confira o número subindo",
+            "Responda as <strong>perguntas</strong> (caixa roxa — não é código)",
+            "Clique <strong>Verificar</strong> para concluir",
+          ],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador((c) => c + 1)}>adicionar</button>\n    </div>\n  );\n}`,
+          dica: "Só explorar — edite no próximo desafio.",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador((c) => c + 1)}>adicionar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /useState/.test(c) && /\{contador\}/.test(c), msg: "Mantém useState e {contador}" },
+              { ok: /<button/i.test(c) && /setContador/.test(c), msg: "Mantém botão com setContador" },
+            ];
+          },
+        },
+        {
+          modo: "completar",
+          nivel: "básico",
+          nivelClass: "completar",
+          refs: ["useState", "jsx-chaves"],
+          titulo: "Desafio 2 — Complete as lacunas (memória + tela)",
+          aprender: `
+            <p><strong>Objetivo:</strong> criar a memória do contador e mostrar na tela.</p>
+            <p><code>useState(0)</code> = “guarda o número 0”. <code>{contador}</code> = “mostra esse número no JSX”.</p>
+            <p>Você só troca 2 pedaços — o resto do arquivo já está montado.</p>`,
+          porque: "O par [valor, setValor] separa “ler na tela” de “mudar com código” — é o coração do React com state.",
+          explica: `
+            <p class="mimo-chip">Completar · 2 trocas</p>
+            <p>Troque só o texto <strong>___LACUNA___</strong> — o resto já está certo.</p>`,
+          lacunas: [
+            "<code>___LACUNA_1___</code> → <code>React.useState(0)</code>",
+            "<code>___LACUNA_2___</code> → <code>{contador}</code> (com chaves!)",
+          ],
+          passos: [
+            "No <strong>código</strong> (abaixo das perguntas), troque <code>___LACUNA_1___</code> por <code>React.useState(0)</code>",
+            "Troque <code>___LACUNA_2___</code> por <code>{contador}</code>",
+            "<strong>Preview</strong> → deve aparecer <em>Contador: 0</em>",
+            "<strong>Verificar</strong>",
+          ],
+          codigo: `function Contador() {\n  const [contador, setContador] = ___LACUNA_1___;\n  return (\n    <div>\n      <p>Contador: ___LACUNA_2___</p>\n    </div>\n  );\n}`,
+          dica: "LACUNA_1 = React.useState(0) · LACUNA_2 = {contador}",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: !/___LACUNA/.test(c), msg: "Substitua todas as ___LACUNA___" },
+              { ok: /useState\s*\(\s*0\s*\)/.test(c), msg: "useState(0)" },
+              { ok: /\{contador\}/.test(c), msg: "{contador} no JSX" },
+            ];
+          },
+        },
+        {
+          modo: "completar",
+          nivel: "básico",
+          nivelClass: "completar",
+          refs: ["onClick", "setContador", "arrow"],
+          titulo: "Desafio 3 — Complete o botão adicionar",
+          aprender: `
+            <p><strong>Objetivo:</strong> o botão só age quando clica.</p>
+            <p><code>onClick</code> precisa de uma <strong>função</strong> — por isso <code>() => setContador(...)</code>.</p>`,
+          porque: "Se chamar setContador direto no JSX, rodaria a cada render — não só no clique.",
+          explica: `
+            <p class="mimo-chip">Completar · 1 troca</p>
+            <p>O contador na tela já funciona. Falta o clique somar +1.</p>`,
+          lacunas: [
+            "<code>___LACUNA___</code> no onClick → <code>() => setContador(contador + 1)</code>",
+          ],
+          passos: ["Troque ___LACUNA___ no onClick", "Preview: clique adicionar"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={___LACUNA___}>adicionar</button>\n    </div>\n  );\n}`,
+          dica: "onClick precisa de função: () => setContador(...)",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador(contador + 1)}>adicionar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: !/___LACUNA/.test(c), msg: "Substitua ___LACUNA___" },
+              { ok: /<button/i.test(c) && /onClick=\{/.test(c), msg: "Botão com onClick={...}" },
+              { ok: /setContador/.test(c), msg: "setContador no clique" },
+            ];
+          },
+        },
+        {
+          modo: "completar",
+          nivel: "básico",
+          nivelClass: "completar",
+          refs: ["setContador"],
+          titulo: "Desafio 4 — Complete o botão resetar",
+          aprender: `
+            <p><strong>Objetivo:</strong> voltar ao zero com valor fixo.</p>
+            <p>Reset não soma — é <code>setContador(0)</code> direto.</p>`,
+          porque: "Valor fixo no set é útil quando você sabe o número exato (zero), não precisa calcular.",
+          explica: `
+            <p class="mimo-chip">Completar · 1 troca</p>
+            <p>Adicionar um botão que volta o contador pra zero.</p>`,
+          lacunas: [
+            "Linha do botão resetar: <code>onClick={() => setContador(0)}</code>",
+          ],
+          passos: ["Complete o segundo botão (resetar)", "Teste: adicionar → resetar → volta a 0"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador(contador + 1)}>adicionar</button>\n      <button onClick={___LACUNA___}>resetar</button>\n    </div>\n  );\n}`,
+          dica: "Reset = valor fixo: setContador(0)",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador(contador + 1)}>adicionar</button>\n      <button onClick={() => setContador(0)}>resetar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: !/___LACUNA/.test(c), msg: "Substitua ___LACUNA___" },
+              { ok: /setContador\s*\(\s*0\s*\)/.test(c), msg: "setContador(0) no resetar" },
+            ];
+          },
+        },
+        {
+          modo: "escrever",
+          nivel: "básico", nivelClass: "verde",
+          refs: ["setContador", "math-max"],
+          titulo: "Desafio 5 — Botão remover (não fica negativo)",
+          aprender: `
+            <p><strong>Objetivo:</strong> diminuir sem passar de 0.</p>
+            <p><code>Math.max(0, x)</code> escolhe o maior entre 0 e x — se x for -1, fica 0.</p>`,
+          porque: "Regras de negócio (não negativar) entram na função que atualiza o state.",
+          explica: `<p class="mimo-chip">Escrever · você monta</p>
+            <p>Adicione o botão remover. Use <code>Math.max(0, contador - 1)</code>.</p>`,
+          passos: ["Botão remover", "Use Math.max(0, ...) ou (prev) => Math.max(0, prev - 1)"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador(contador + 1)}>adicionar</button>\n      <button onClick={() => setContador(0)}>resetar</button>\n    </div>\n  );\n}`,
+          dica: "setContador((prev) => Math.max(0, prev - 1))",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador(contador + 1)}>adicionar</button>\n      <button onClick={() => setContador(0)}>resetar</button>\n      <button onClick={() => setContador((p) => Math.max(0, p - 1))}>remover</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /remover/i.test(c), msg: 'Botão "remover"' },
+              { ok: /Math\.max\s*\(\s*0/.test(c), msg: "Math.max(0, ...) para não negativar" },
+            ];
+          },
+        },
+        {
+          modo: "completar",
+          nivel: "básico",
+          nivelClass: "completar",
+          refs: ["prev", "setContador"],
+          titulo: "Desafio 6 — Complete o prev no adicionar",
+          explica: `
+            <p class="mimo-chip">Completar · forma funcional</p>
+            <p>Troque <code>contador + 1</code> por <code>(prev) => prev + 1</code> no adicionar.</p>`,
+          lacunas: ["<code>___LACUNA___</code> → <code>(prev) => prev + 1</code>"],
+          passos: ["Substitua ___LACUNA___ no setContador do botão adicionar"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador(___LACUNA___)}>adicionar</button>\n    </div>\n  );\n}`,
+          dica: "prev é só nome — pode ser (c) => c + 1",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador((prev) => prev + 1)}>adicionar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: !/___LACUNA/.test(c), msg: "Substitua ___LACUNA___" },
+              { ok: /setContador\s*\(\s*\(?\s*prev/.test(c), msg: "setContador((prev) => ...)" },
+            ];
+          },
+        },
+        {
+          modo: "escrever",
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["prev"],
+          titulo: "Desafio 7 — Botão +2 (duas vezes funcional)",
+          explica: `<p class="mimo-chip">Escrever · prev 2x</p>
+            <p>Duas linhas <code>setContador((prev) => prev + 1)</code> no mesmo handler = +2 num clique.</p>`,
+          passos: ["Função adicionarDois ou botão +2", "Duas chamadas setContador com prev"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n\n  function adicionarDois() {\n    // TODO\n  }\n\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={adicionarDois}>+2</button>\n    </div>\n  );\n}`,
+          dica: "Duas linhas idênticas: setContador((prev) => prev + 1);",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  function adicionarDois() {\n    setContador((prev) => prev + 1);\n    setContador((prev) => prev + 1);\n  }\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={adicionarDois}>+2</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            const n = (c.match(/setContador\s*\(\s*\(?\s*prev/gi) || []).length;
+            return [{ ok: n >= 2, msg: "Pelo menos 2x setContador((prev) => ...)" }];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["useState", "spread-array"],
+          titulo: "Desafio 8 — State do histórico (array vazio)",
+          explica: `
+            <p class="mimo-chip">Lista vazia ao começar</p>
+            <p>Segundo useState — guarda cada número quando clica:</p>
+            <pre>const [historico, setHistorico] = React.useState([]);</pre>
+            <p>Dentro de <code>adicionar</code>, no <code>setContador((prev) => { ... })</code>:</p>
+            <pre>const novo = prev + 1;
+setHistorico((h) => [...h, novo]);
+return novo;</pre>
+            <p><code>[...h, novo]</code> = copia a lista + número novo no final.</p>
+          `,
+          passos: [
+            "useState([]) para historico",
+            "Dentro de adicionar: const novo, setHistorico com [...h, novo], return novo",
+          ],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  // TODO historico\n\n  function adicionar() {\n    setContador((prev) => prev + 1);\n  }\n\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={adicionar}>adicionar</button>\n    </div>\n  );\n}`,
+          dica: "Salve depois de calcular novo: const novo = prev+1; setHistorico(h => [...h, novo])",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [historico, setHistorico] = React.useState([]);\n  function adicionar() {\n    setContador((prev) => {\n      const novo = prev + 1;\n      setHistorico((h) => [...h, novo]);\n      return novo;\n    });\n  }\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={adicionar}>adicionar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return validarDesafio7(c);
+          },
+        },
+        {
+          nivel: "básico", nivelClass: "verde",
+          refs: ["array-lista", "useState"],
+          titulo: "Desafio 9 — O que é []?",
+          explica: `
+            <p class="mimo-chip">Passo 1 de 4 · listas</p>
+            <p><strong>[]</strong> = caixa vazia (zero itens).</p>
+            <p><strong>[1, 2, 3]</strong> = caixa com 3 números.</p>
+            <pre>const [historico, setHistorico] = React.useState([1, 2, 3]);</pre>
+            <p>Mostre quantos itens tem: <code>{historico.length}</code> → aparece <strong>3</strong>.</p>
+          `,
+          quiz: [
+            { pergunta: "useState([]) começa com:", opcoes: ["lista vazia", "número 0", "texto vazio"], correta: 0 },
+            { pergunta: "[1, 2, 3].length vale:", opcoes: ["1", "3", "0"], correta: 1 },
+          ],
+          passos: ["useState([1, 2, 3])", "<p>Itens: {historico.length}</p>"],
+          codigo: `function Contador() {\n  return (\n    <div>\n      <p>Itens na lista: </p>\n    </div>\n  );\n}`,
+          dica: "historico.length — só conta, sem map ainda",
+          solucao: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <p>Itens na lista: {historico.length}</p>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /useState\s*\(\s*\[/.test(c), msg: "useState com array tipo [1, 2, 3]" },
+              { ok: /historico\.length/.test(c), msg: "{historico.length} na tela" },
+            ];
+          },
+        },
+        {
+          nivel: "básico", nivelClass: "verde",
+          refs: ["array-lista", "map"],
+          titulo: "Desafio 10 — Ver a lista (sem map)",
+          explica: `
+            <p class="mimo-chip">Passo 2 de 4 · listas</p>
+            <p>Antes do map, dá pra ver os números assim:</p>
+            <pre>&lt;p&gt;{historico.join(", ")}&lt;/p&gt;</pre>
+            <p>Na tela: <strong>1, 2, 3</strong></p>
+          `,
+          quiz: [
+            { pergunta: "historico é:", opcoes: ["um número só", "uma lista (array)", "um botão"], correta: 1 },
+          ],
+          passos: ["useState([1, 2, 3])", "{historico.join(', ')}"],
+          codigo: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <p>Lista: </p>\n    </div>\n  );\n}`,
+          dica: "join põe vírgula entre os números",
+          solucao: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <p>Lista: {historico.join(", ")}</p>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /\.join\s*\(/.test(c), msg: "historico.join(...)" },
+              { ok: /\{historico/.test(c), msg: "mostrar historico no JSX" },
+            ];
+          },
+        },
+        {
+          nivel: "básico", nivelClass: "verde",
+          refs: ["array-lista", "map"],
+          titulo: "Desafio 11 — map: cada item vira &lt;li&gt;",
+          explica: `
+            <p class="mimo-chip">Passo 3 de 4 · map</p>
+            <p><strong>map</strong> = pra cada número, cria uma linha:</p>
+            <pre>&lt;ul&gt;
+  {historico.map((n) =&gt; &lt;li&gt;{n}&lt;/li&gt;)}
+&lt;/ul&gt;</pre>
+            <p><code>n</code> = o valor (1, depois 2, depois 3...).</p>
+          `,
+          quiz: [
+            { pergunta: "historico.map serve para:", opcoes: ["apagar a lista", "criar um &lt;li&gt; por item", "somar tudo"], correta: 1 },
+          ],
+          passos: ["&lt;ul&gt;", "historico.map((n) =&gt; &lt;li&gt;{n}&lt;/li&gt;)"],
+          codigo: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      {/* TODO ul + map */}\n    </div>\n  );\n}`,
+          dica: "Dentro do ul: {historico.map(...)}",
+          solucao: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <ul>\n        {historico.map((n) => <li>{n}</li>)}\n      </ul>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /\.map\s*\(/.test(c), msg: ".map(" },
+              { ok: /<li/i.test(c), msg: "<li> na lista" },
+            ];
+          },
+        },
+        {
+          nivel: "básico", nivelClass: "verde",
+          refs: ["array-lista", "map"],
+          titulo: "Desafio 12 — key={i} em cada linha",
+          explica: `
+            <p class="mimo-chip">Passo 4 de 4 · key</p>
+            <p>React pede um <strong>crachá</strong> em cada &lt;li&gt;:</p>
+            <pre>historico.map((n, i) =&gt; &lt;li key={i}&gt;{n}&lt;/li&gt;)</pre>
+            <p><code>i</code> = posição (0, 1, 2...). Só decora isso por agora.</p>
+          `,
+          quiz: [
+            { pergunta: "key={i} serve para:", opcoes: ["React saber qual linha é qual", "deixar colorido", "somar números"], correta: 0 },
+          ],
+          passos: ["(n, i) no map", "key={i} no &lt;li&gt;"],
+          codigo: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <ul>\n        {historico.map((n) => <li>{n}</li>)}\n      </ul>\n    </div>\n  );\n}`,
+          dica: "Dois nomes no map: (n, i) — n valor, i índice",
+          solucao: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <ul>\n        {historico.map((n, i) => <li key={i}>{n}</li>)}\n      </ul>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /key=\{/.test(c), msg: "key={...} no <li>" },
+              { ok: /\.map\s*\([^)]*,\s*\w+/.test(c), msg: "(n, i) no map — precisa do índice i" },
+            ];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["array-lista", "map", "spread-array"],
+          titulo: "Desafio 13 — map no histórico do contador",
+          explica: `
+            <p class="mimo-chip">Junta tudo</p>
+            <p>Desafio 7 guarda números no <code>historico</code>. Agora <strong>mostra</strong> com o map dos passos 10–11:</p>
+            <pre>&lt;ul&gt;
+  {historico.map((n, i) =&gt; (
+    &lt;li key={i}&gt;{n}&lt;/li&gt;
+  ))}
+&lt;/ul&gt;</pre>
+            <p><code>[]</code> no começo = lista vazia até clicar adicionar.</p>
+          `,
+          quiz: [
+            { pergunta: "Se historico = [], a lista na tela:", opcoes: ["mostra 0 linhas", "quebra o app", "mostra undefined"], correta: 0 },
+          ],
+          passos: ["&lt;ul&gt; + historico.map", "key={i}", "Teste: clique adicionar várias vezes"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [historico, setHistorico] = React.useState([]);\n  function adicionar() {\n    setContador((prev) => {\n      const novo = prev + 1;\n      setHistorico((h) => [...h, novo]);\n      return novo;\n    });\n  }\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={adicionar}>adicionar</button>\n      {/* TODO lista */}\n    </div>\n  );\n}`,
+          dica: "Copie o map do desafio 11 — só troque a lista fixa pelo historico do state",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [historico, setHistorico] = React.useState([]);\n  function adicionar() {\n    setContador((prev) => {\n      const novo = prev + 1;\n      setHistorico((h) => [...h, novo]);\n      return novo;\n    });\n  }\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={adicionar}>adicionar</button>\n      <ul>\n        {historico.map((n, i) => (\n          <li key={i}>{n}</li>\n        ))}\n      </ul>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /\.map\s*\(/.test(c), msg: ".map(" },
+              { ok: /key=\{/.test(c), msg: "key={...} nos itens" },
+              { ok: /setHistorico/.test(c), msg: "manter setHistorico no adicionar (desafio 7)" },
+            ];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["useState"],
+          titulo: "Desafio 14 — State passo (quanto soma por clique)",
+          explica: `<h3>Paulo, dois useStates independentes</h3>
+            <p><code>passo</code> começa em 1. Adicionar soma <code>prev + passo</code>, não +1 fixo.</p>`,
+          passos: ["useState(1) para passo", "Mostrar {passo}", "setContador(c => c + passo) no adicionar"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n    </div>\n  );\n}`,
+          dica: "Botões passo + e passo - com setPasso",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [passo, setPasso] = React.useState(1);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <p>Passo: {passo}</p>\n      <button onClick={() => setPasso((p) => p + 1)}>passo +</button>\n      <button onClick={() => setContador((c) => c + passo)}>adicionar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: (c.match(/useState/g) || []).length >= 2, msg: "2 useStates" },
+              { ok: /\+\s*passo/.test(c), msg: "somar + passo" },
+            ];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["boolean-state"],
+          titulo: "Desafio 15 — Esconder/mostrar histórico",
+          explica: `<h3>Paulo, boolean + && no JSX</h3>
+            <p><code>const [mostrar, setMostrar] = React.useState(true);</code></p>
+            <p><code>{mostrar && &lt;ul&gt;...&lt;/ul&gt;}</code> — só renderiza se true.</p>`,
+          passos: ["useState(true) mostrar", "Botão toggle setMostrar(m => !m)", "Lista dentro de {mostrar && ...}"],
+          codigo: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <ul>\n        {historico.map((n, i) => <li key={i}>{n}</li>)}\n      </ul>\n    </div>\n  );\n}`,
+          dica: "Texto do botão: {mostrar ? 'Esconder' : 'Mostrar'}",
+          solucao: `function Contador() {\n  const [historico] = React.useState([1, 2, 3]);\n  const [mostrar, setMostrar] = React.useState(true);\n  return (\n    <div>\n      <button onClick={() => setMostrar((m) => !m)}>toggle</button>\n      {mostrar && (\n        <ul>\n          {historico.map((n, i) => (\n            <li key={i}>{n}</li>\n          ))}\n        </ul>\n      )}\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /useState\s*\(\s*true/.test(c), msg: "useState(true) ou false" },
+              { ok: /mostrar\s*&&/.test(c), msg: "{mostrar && ...}" },
+            ];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["jsx-chaves"],
+          titulo: "Desafio 16 — Mostrar dobro e se é par",
+          explica: `<h3>Paulo, dá pra calcular na hora do JSX</h3>
+            <p>Não precisa useState pra tudo — valor derivado: <code>{contador * 2}</code> e <code>{contador % 2 === 0 ? 'par' : 'ímpar'}</code>.</p>`,
+          passos: ["Linha com dobro", "Linha par/ímpar com ternário ? :"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n    </div>\n  );\n}`,
+          dica: "Ternário: condição ? seVerdadeiro : seFalso",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <p>Dobro: {contador * 2}</p>\n      <p>{contador % 2 === 0 ? "par" : "ímpar"}</p>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /\*\s*2/.test(c), msg: "contador * 2 ou similar" },
+              { ok: /\?/.test(c) && /:/.test(c), msg: "ternário ? :" },
+            ];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["spread-obj"],
+          titulo: "Desafio 17 — State objeto { contador, passo }",
+          explica: `<h3>Paulo, um objeto em vez de dois useStates</h3>
+            <p><code>useState({ contador: 0, passo: 1 })</code> — atualizar: <code>setConfig(prev => ({ ...prev, contador: prev.contador + 1 }))</code></p>`,
+          passos: ["useState com objeto", "Atualizar com spread {...prev, contador: ...}"],
+          codigo: `function Contador() {\n  // TODO um state objeto\n  return <div>...</div>;\n}`,
+          dica: "Leia config.contador e config.passo no JSX",
+          solucao: `function Contador() {\n  const [config, setConfig] = React.useState({ contador: 0, passo: 1 });\n  return (\n    <div>\n      <p>{config.contador}</p>\n      <button onClick={() => setConfig((p) => ({ ...p, contador: p.contador + 1 }))}>+</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /useState\s*\(\s*\{/.test(c), msg: "useState({ ... })" },
+              { ok: /\.\.\.(?:prev|p)/.test(c), msg: "spread ao atualizar objeto" },
+            ];
+          },
+        },
+        {
+          nivel: "médio", nivelClass: "amarelo",
+          refs: ["spread-array"],
+          titulo: "Desafio 18 — Histórico de strings (operações)",
+          explica: `<h3>Paulo, histórico tipo calculadora</h3>
+            <p>Salve strings: <code>setHistorico(h => [...h, \`\${contador}+1=\${contador+1}\`])</code> ou texto fixo primeiro.</p>`,
+          passos: ["historico string[]", "Ao adicionar push via spread com template string"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [historico, setHistorico] = React.useState([]);\n  return <div>...</div>;\n}`,
+          dica: "Template: `texto ${variavel} mais`",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [historico, setHistorico] = React.useState([]);\n  function add() {\n    setContador((c) => {\n      const n = c + 1;\n      setHistorico((h) => [...h, \`+\${n}\`]);\n      return n;\n    });\n  }\n  return (\n    <div>\n      <p>{contador}</p>\n      <button onClick={add}>+</button>\n      <ul>{historico.map((s, i) => <li key={i}>{s}</li>)}</ul>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /`/.test(c) || /\+.*\+/.test(c), msg: "template string ou concatenação" },
+              { ok: /\[\.\.\./.test(c), msg: "spread no historico" },
+            ];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["filter"],
+          titulo: "Desafio 19 — Limpar histórico (voltar array vazio)",
+          explica: `<h3>Paulo, reset de array</h3>
+            <p><code>setHistorico([])</code> — array vazio novo. Ou <code>setHistorico(() => [])</code>.</p>`,
+          passos: ["Botão limpar histórico", "setHistorico([])"],
+          codigo: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <ul>{historico.map((n,i)=><li key={i}>{n}</li>)}</ul>\n    </div>\n  );\n}`,
+          dica: "setHistorico([]) zera a lista",
+          solucao: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2, 3]);\n  return (\n    <div>\n      <button onClick={() => setHistorico([])}>limpar</button>\n      <ul>{historico.map((n, i) => <li key={i}>{n}</li>)}</ul>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [{ ok: /setHistorico\s*\(\s*\[\s*\]\s*\)/.test(c), msg: "setHistorico([])" }];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["props", "componente"],
+          titulo: "Desafio 20 — passo vem de prop",
+          explica: `<h3>Paulo, pai manda o passo</h3>
+            <pre>function Contador({ passo = 1 }) {\n  ...\n}\n&lt;Contador passo={3} /&gt;</pre>`,
+          passos: ["Contador recebe { passo }", "App renderiza <Contador passo={2} />", "Somar + passo"],
+          codigo: `function Contador(/* TODO props */) {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>{contador}</p>\n      <button onClick={() => setContador((c) => c + 1)}>+</button>\n    </div>\n  );\n}\n\nfunction App() {\n  return <Contador />;\n}`,
+          dica: "function Contador({ passo = 1 })",
+          solucao: `function Contador({ passo = 1 }) {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>{contador}</p>\n      <button onClick={() => setContador((c) => c + passo)}>+</button>\n    </div>\n  );\n}\nfunction App() {\n  return <Contador passo={3} />;\n}`,
+          validar(c) {
+            return [
+              { ok: /\{\s*passo/.test(c), msg: "desestruturar passo nas props" },
+              { ok: /<Contador\s+passo=/.test(c), msg: "<Contador passo={...} />" },
+            ];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["jsx-chaves"],
+          titulo: "Desafio 21 — Contador de cliques no botão",
+          explica: `<h3>Paulo, state extra só pra contar cliques</h3>
+            <p><code>cliques</code> sobe 1 em todo onClick, junto com contador.</p>`,
+          passos: ["useState cliques", "A cada adicionar: setCliques(c => c + 1)", "Mostrar total de cliques"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return <div>...</div>;\n}`,
+          dica: "Dois sets no mesmo handler",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [cliques, setCliques] = React.useState(0);\n  function add() {\n    setContador((c) => c + 1);\n    setCliques((k) => k + 1);\n  }\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <p>Cliques: {cliques}</p>\n      <button onClick={add}>adicionar</button>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /cliques/i.test(c), msg: "state cliques" },
+              { ok: /setCliques/.test(c), msg: "setCliques" },
+            ];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["componente"],
+          titulo: "Desafio 22 — Montar App com Contador dentro",
+          explica: `<h3>Paulo, estrutura do contador.html</h3>
+            <pre>function App() {\n  return (\n    &lt;main&gt;\n      &lt;Contador /&gt;\n    &lt;/main&gt;\n  );\n}</pre>`,
+          passos: ["function App()", "<main> com <Contador />"],
+          codigo: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador((p) => p + 1)}>+</button>\n    </div>\n  );\n}\n\n// TODO App`,
+          dica: "App só envolve Contador — igual teu contador.html",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <button onClick={() => setContador((p) => p + 1)}>+</button>\n    </div>\n  );\n}\nfunction App() {\n  return (\n    <main>\n      <Contador />\n    </main>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /function App/.test(c), msg: "function App" },
+              { ok: /<Contador/.test(c), msg: "<Contador />" },
+            ];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["map", "jsx-chaves"],
+          titulo: "Desafio 23 — Quantidade no histórico (sem state extra)",
+          explica: `<h3>Paulo, valor derivado</h3>
+            <p><code>historico.length</code> no JSX — não precisa guardar quantidade separada.</p>`,
+          passos: ["Mostrar Total: {historico.length}"],
+          codigo: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2]);\n  return (\n    <div>\n      <ul>{historico.map((n,i)=><li key={i}>{n}</li>)}</ul>\n    </div>\n  );\n}`,
+          dica: ".length é propriedade do array",
+          solucao: `function Contador() {\n  const [historico, setHistorico] = React.useState([1, 2]);\n  return (\n    <div>\n      <p>Total: {historico.length}</p>\n      <ul>{historico.map((n, i) => <li key={i}>{n}</li>)}</ul>\n    </div>\n  );\n}`,
+          validar(c) {
+            return [{ ok: /historico\.length/.test(c), msg: "historico.length no JSX" }];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["prev", "math-max", "spread-array", "map", "boolean-state"],
+          titulo: "Desafio 24 — Contador quase completo",
+          explica: `<h3>Paulo, junta quase tudo</h3>
+            <p>contador + passo + historico + map + reset + remover com Math.max + toggle mostrar.</p>`,
+          passos: ["3+ useStates", "Historico spread", "map", "mostrar &&", "Math.max no remover"],
+          codigo: `function Contador() {\n  // TODO quase completo\n  return <div>...</div>;\n}`,
+          dica: "Revisa desafios 4, 7, 8, 9, 10",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [passo, setPasso] = React.useState(1);\n  const [historico, setHistorico] = React.useState([]);\n  const [mostrar, setMostrar] = React.useState(true);\n  function add() {\n    setContador((c) => {\n      const n = c + passo;\n      setHistorico((h) => [...h, n]);\n      return n;\n    });\n  }\n  return (\n    <div>\n      <p>Contador: {contador} | Passo: {passo}</p>\n      <button onClick={add}>adicionar</button>\n      <button onClick={() => setContador(0)}>reset</button>\n      <button onClick={() => setContador((c) => Math.max(0, c - passo))}>remover</button>\n      <button onClick={() => setPasso((p) => p + 1)}>passo+</button>\n      <button onClick={() => setMostrar((m) => !m)}>toggle</button>\n      {mostrar && (\n        <ul>{historico.map((n, i) => <li key={i}>{n}</li>)}</ul>\n      )}\n    </div>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: (c.match(/useState/g) || []).length >= 3, msg: "3+ useStates" },
+              { ok: /\.map/.test(c) && /mostrar\s*&&/.test(c), msg: "map + toggle" },
+              { ok: /Math\.max/.test(c), msg: "Math.max no remover" },
+            ];
+          },
+        },
+        {
+          nivel: "avançado", nivelClass: "vermelho",
+          refs: ["componente", "regras-hooks"],
+          titulo: "Desafio 25 — Projeto final pro contador.html",
+          explica: `<h3>Paulo, isso aqui você copia pro contador.html 🎉</h3>
+            <p>Contador completo + App + main. Testa no navegador. Parabéns — você montou um app React com state, eventos, lista e props.</p>
+            <p><strong>Ordem no arquivo real:</strong> Contador → App → createRoot().render(&lt;App /&gt;)</p>`,
+          passos: ["Contador completo (desafio 19)", "function App com main", "Tudo funcionando junto"],
+          codigo: `function Contador() {\n  // SEU CONTADOR FINAL\n}\n\nfunction App() {\n  return (\n    <main>\n      {/* Contador aqui */}\n    </main>\n  );\n}`,
+          dica: "Copie a solução, cole no contador.html, abra no Chrome",
+          solucao: `function Contador() {\n  const [contador, setContador] = React.useState(0);\n  const [passo, setPasso] = React.useState(1);\n  const [historico, setHistorico] = React.useState([]);\n  const [mostrar, setMostrar] = React.useState(true);\n\n  function adicionar() {\n    setContador((c) => {\n      const novo = c + passo;\n      setHistorico((h) => [...h, novo]);\n      return novo;\n    });\n  }\n\n  return (\n    <div>\n      <p>Contador: {contador}</p>\n      <p>Passo: {passo}</p>\n      <button onClick={adicionar}>adicionar</button>\n      <button onClick={() => setContador(0)}>resetar</button>\n      <button onClick={() => setContador((c) => Math.max(0, c - passo))}>remover</button>\n      <button onClick={() => setPasso((p) => p + 1)}>passo +</button>\n      <button onClick={() => setPasso((p) => Math.max(1, p - 1))}>passo -</button>\n      <button onClick={() => setMostrar((m) => !m)}>histórico</button>\n      {mostrar && (\n        <ul>\n          {historico.map((n, i) => (\n            <li key={i}>Clique → {n}</li>\n          ))}\n        </ul>\n      )}\n    </div>\n  );\n}\n\nfunction App() {\n  return (\n    <main>\n      <Contador />\n    </main>\n  );\n}`,
+          validar(c) {
+            return [
+              { ok: /function Contador/.test(c) && /function App/.test(c), msg: "Contador + App" },
+              { ok: /<main>/.test(c) && /<Contador/.test(c), msg: "main > Contador" },
+              { ok: /\.map/.test(c) && /setHistorico/.test(c) && /setPasso/.test(c), msg: "histórico + passo completos" },
+            ];
+          },
+        },
+      ];
+
+      const STORAGE_V1 = "react-estudos-progresso-v1";
+      const STORAGE_V2 = "react-estudos-progresso-v2";
+      const STORAGE_KEY = "react-estudos-progresso-v3";
+      const STORAGE_DUVIDAS = "react-estudos-duvidas-v1";
+      const TUTOR_URL = "http://127.0.0.1:3847";
+      let tutorOnline = false;
+      let tutorTemChave = false;
+
+      function migrarIndiceDesafio(i) {
+        return i >= 7 ? i + 4 : i;
+      }
+
+      function migrarDeV1(d) {
+        const codigosSalvosNovo = {};
+        Object.entries(d.codigosSalvos || {}).forEach(([k, v]) => {
+          const ki = Number(k);
+          if (!Number.isNaN(ki)) codigosSalvosNovo[migrarIndiceDesafio(ki)] = v;
+        });
+        return {
+          desafioIdx: migrarIndiceDesafio(d.desafioIdx ?? 0),
+          concluidos: (d.concluidos || []).map(migrarIndiceDesafio),
+          codigosSalvos: codigosSalvosNovo,
+          painelAtivo: d.painelAtivo,
+        };
+      }
+
+      /** +2 desafios intro/completar no início (v2 → v3) */
+      function migrarDeV2Intro(d) {
+        const shift = (i) => i + 2;
+        const codigosSalvosNovo = {};
+        Object.entries(d.codigosSalvos || {}).forEach(([k, v]) => {
+          const ki = Number(k);
+          if (!Number.isNaN(ki)) codigosSalvosNovo[shift(ki)] = v;
+        });
+        return {
+          desafioIdx: shift(d.desafioIdx ?? 0),
+          concluidos: (d.concluidos || []).map(shift),
+          codigosSalvos: codigosSalvosNovo,
+          painelAtivo: d.painelAtivo,
+        };
+      }
+
+      let desafioIdx = 0;
+      const concluidos = new Set();
+      let tagAtiva = "todas";
+      let codigosSalvos = {};
+      let painelAtivo = "desafios";
+
+      function salvarProgresso() {
+        const d = desafios[desafioIdx];
+        const modo = d?.modo || "escrever";
+        codigosSalvos[desafioIdx] =
+          modo === "intro" ? d.codigo : editor.value;
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            desafioIdx,
+            concluidos: [...concluidos],
+            codigosSalvos,
+            painelAtivo,
+          })
+        );
+      }
+
+      function aplicarProgresso(d) {
+        if (typeof d.desafioIdx === "number" && d.desafioIdx >= 0 && d.desafioIdx < desafios.length) {
+          desafioIdx = d.desafioIdx;
+        }
+        if (Array.isArray(d.concluidos)) {
+          d.concluidos.forEach((i) => concluidos.add(i));
+        }
+        if (d.codigosSalvos && typeof d.codigosSalvos === "object") {
+          codigosSalvos = d.codigosSalvos;
+        }
+        if (d.painelAtivo === "forum" || d.painelAtivo === "desafios") {
+          painelAtivo = d.painelAtivo;
+        }
+      }
+
+      function carregarProgresso() {
+        try {
+          let dados = null;
+          const rawV3 = localStorage.getItem(STORAGE_KEY);
+          if (rawV3) dados = JSON.parse(rawV3);
+          else {
+            const rawV2 = localStorage.getItem(STORAGE_V2);
+            if (rawV2) dados = migrarDeV2Intro(JSON.parse(rawV2));
+            else {
+              const rawV1 = localStorage.getItem(STORAGE_V1);
+              if (rawV1) dados = migrarDeV2Intro(migrarDeV1(JSON.parse(rawV1)));
+            }
+          }
+          if (!dados) return;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+          aplicarProgresso(dados);
+        } catch (_) {}
+      }
+
+      let saveTimer;
+      function salvarProgressoDebounced() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(salvarProgresso, 400);
+      }
+
+      const editor = document.getElementById("editor");
+      const feedback = document.getElementById("feedback");
+      const solucaoBox = document.getElementById("solucaoBox");
+      const solucaoPre = document.getElementById("solucaoPre");
+      const btnProximo = document.getElementById("btnProximo");
+      const previewFrame = document.getElementById("previewFrame");
+      const previewErro = document.getElementById("previewErro");
+      const previewOk = document.getElementById("previewOk");
+      const inputDuvida = document.getElementById("inputDuvida");
+      const duvidaResposta = document.getElementById("duvidaResposta");
+
+      let duvidasSalvas = {};
+
+      function carregarDuvidas() {
+        try {
+          const raw = localStorage.getItem(STORAGE_DUVIDAS);
+          if (raw) duvidasSalvas = JSON.parse(raw);
+        } catch (_) {
+          duvidasSalvas = {};
+        }
+      }
+
+      function salvarDuvidas() {
+        localStorage.setItem(STORAGE_DUVIDAS, JSON.stringify(duvidasSalvas));
+      }
+
+      function restaurarDuvidaDoDesafio() {
+        const d = duvidasSalvas[desafioIdx];
+        inputDuvida.value = d?.pergunta || "";
+        if (d?.respostaHtml) {
+          duvidaResposta.innerHTML = d.respostaHtml;
+          duvidaResposta.classList.add("vis");
+        } else {
+          duvidaResposta.innerHTML = "";
+          duvidaResposta.classList.remove("vis");
+        }
+      }
+
+      function comecarDoZero() {
+        const ok = confirm(
+          "Zerar TUDO?\n\n• Volta ao desafio 1\n• Apaga desafios concluídos\n• Apaga código salvo no editor\n• Apaga dúvidas salvas"
+        );
+        if (!ok) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_V2);
+        localStorage.removeItem(STORAGE_V1);
+        localStorage.removeItem(STORAGE_DUVIDAS);
+        desafioIdx = 0;
+        concluidos.clear();
+        codigosSalvos = {};
+        duvidasSalvas = {};
+        painelAtivo = "desafios";
+        salvarProgresso();
+        resetFeedback();
+        carregarDesafio();
+        feedback.style.display = "block";
+        feedback.className = "feedback ok";
+        feedback.innerHTML =
+          "<strong>↺ Progresso zerado.</strong> Começa de novo no desafio 1. Boa!";
+      }
+
+      function montarContextoDuvida() {
+        const d = desafios[desafioIdx];
+        const codigo = editor.value.trim();
+        const trecho =
+          codigo.length > 900 ? codigo.slice(0, 900) + "\n// ... (código cortado)" : codigo;
+        return {
+          desafioNum: desafioIdx + 1,
+          titulo: d.titulo,
+          passos: d.passos.join(" | "),
+          dica: d.dica,
+          codigo: trecho,
+          pergunta: inputDuvida.value.trim(),
+        };
+      }
+
+      function pedeRespostaCompleta(pergunta) {
+        const p = pergunta.toLowerCase();
+        return /solu[cç][aã]o|resposta completa|me d[aá] o c[oó]digo|c[oó]digo certo|cola pra mim|gabarito/.test(p);
+      }
+
+      function responderDuvidaLocal(ctx) {
+        const p = ctx.pergunta.toLowerCase();
+        const listaVar = /\b(historico|lista|items)\b/i.test(ctx.codigo)
+          ? "historico"
+          : "minhaLista";
+
+        if (pedeRespostaCompleta(ctx.pergunta)) {
+          return {
+            titulo: "Sem spoiler 🙂",
+            html: `<p>Não vou colar a <strong>solução do desafio</strong> aqui — senão não treina.</p>
+              <p>Posso explicar <code>map</code>, <code>key</code>, <code>[]</code> com exemplo parecido com o seu código.</p>
+              <p>Reformula? Ex: <em>"o que o map faria no meu historico?"</em></p>`,
+          };
+        }
+
+        if (/map|\.map/.test(p)) {
+          return {
+            titulo: "O que map faz (no seu caso)",
+            html: `<p><strong>map</strong> = para cada item do array, você devolve um pedaço de tela (um <code>&lt;li&gt;</code>).</p>
+              <p>Se <code>${listaVar} = [1, 2, 3]</code>, o map cria <strong>3 linhas</strong> — uma por número.</p>
+              <pre>&lt;ul&gt;
+  {${listaVar}.map((n, i) =&gt; (
+    &lt;li key={i}&gt;{n}&lt;/li&gt;
+  ))}
+&lt;/ul&gt;</pre>
+              <p><code>n</code> = o valor (1, 2, 3…). <code>i</code> = posição (0, 1, 2…) — usado no <code>key</code>.</p>
+              <p class="aviso">Isso é um <em>exemplo</em>. No desafio você encaixa no JSX que já tem — sem copiar a solução inteira.</p>`,
+          };
+        }
+
+        if (/key|crach[aã]/.test(p)) {
+          return {
+            titulo: "Para que serve key={i}",
+            html: `<p>Quando há vários <code>&lt;li&gt;</code>, o React precisa de um <strong>id</strong> em cada um.</p>
+              <pre>&lt;li key={i}&gt;{n}&lt;/li&gt;</pre>
+              <p><code>i</code> vem do map: <code>.map((n, i) =&gt; ...)</code> — segundo nome é o índice.</p>
+              <p class="aviso">Não é decoração: evita bug quando a lista muda.</p>`,
+          };
+        }
+
+        if (/\[\]|array|lista vazia|colchete/.test(p)) {
+          return {
+            titulo: "[] — array (lista)",
+            html: `<p><code>[]</code> = lista vazia (0 itens).</p>
+              <p><code>[1, 2, 3]</code> = lista com 3 números.</p>
+              <pre>const [${listaVar}, set${listaVar.charAt(0).toUpperCase() + listaVar.slice(1)}] = React.useState([]);</pre>
+              <p><code>.length</code> = quantos itens. <code>.join(", ")</code> = texto "1, 2, 3".</p>`,
+          };
+        }
+
+        if (/spread|\.\.\./.test(p)) {
+          return {
+            titulo: "Spread [...h, novo]",
+            html: `<p>Copia a lista antiga e coloca um item no <strong>final</strong>:</p>
+              <pre>setHistorico((h) =&gt; [...h, novo]);</pre>
+              <p><code>h</code> = lista atual. <code>novo</code> = número que você acabou de calcular.</p>
+              <p class="aviso">Não use <code>push</code> no state — React pode não atualizar a tela.</p>`,
+          };
+        }
+
+        if (/usestate|state/.test(p)) {
+          return {
+            titulo: "useState em 1 frase",
+            html: `<p>Memória do componente: <code>const [valor, setValor] = React.useState(0);</code></p>
+              <p>Lê <code>{valor}</code> no JSX. Muda com <code>setValor(...)</code> no clique.</p>`,
+          };
+        }
+
+        if (/onclick|clique|bot[aã]o/.test(p)) {
+          return {
+            titulo: "onClick",
+            html: `<p>O botão precisa de uma <strong>função</strong>:</p>
+              <pre>&lt;button onClick={adicionar}&gt;adicionar&lt;/button&gt;</pre>
+              <p>ou <code>onClick={() =&gt; setContador(...)}</code> — não pode ser <code>onClick={adicionar setHistorico(...)}</code> junto.</p>`,
+          };
+        }
+
+        if (/prev|funcional/.test(p)) {
+          return {
+            titulo: "Forma (prev) =>",
+            html: `<p><code>setContador((prev) =&gt; prev + 1)</code> — <code>prev</code> é o valor <em>antes</em> de atualizar.</p>
+              <p>Útil quando chama <code>setContador</code> mais de uma vez no mesmo clique.</p>`,
+          };
+        }
+
+        if (/join/.test(p)) {
+          return {
+            titulo: "join — ver lista sem map",
+            html: `<pre>&lt;p&gt;{historico.join(", ")}&lt;/p&gt;</pre>
+              <p>Mostra: <strong>1, 2, 3</strong> numa linha só. O map vem depois, pra virar &lt;li&gt;.</p>`,
+          };
+        }
+
+        if (/length/.test(p)) {
+          return {
+            titulo: "length — contar itens",
+            html: `<pre>&lt;p&gt;Itens: {historico.length}&lt;/p&gt;</pre>
+              <p><code>[1,2,3].length</code> → 3. Lista vazia <code>[].length</code> → 0.</p>`,
+          };
+        }
+
+        if (/jsx|\{ \}|chav/.test(p)) {
+          return {
+            titulo: "Chaves { } no JSX",
+            html: `<p>Dentro do HTML do React, <code>{ }</code> = "agora é JavaScript".</p>
+              <pre>&lt;p&gt;{contador}&lt;/p&gt;
+&lt;ul&gt;{historico.map(...)}&lt;/ul&gt;</pre>`,
+          };
+        }
+
+        return {
+          titulo: "Me diz com outras palavras",
+          html: `<p>Escreve o que não entendeu (ex: “não sei o que é useState”).</p>
+              <p>Ou use uma palavra: <strong>useState, map, key, onClick, []</strong>.</p>
+              <p class="aviso">Leia o bloco <strong>① Aprender</strong> em cima — é a explicação principal.</p>`,
+        };
+      }
+
+      function mostrarRespostaDuvida(titulo, html, fonte) {
+        const bloco = `<h5>${escapeHtml(titulo)} <span style="color:#6b7280;font-weight:400">· ${fonte}</span></h5>${html}`;
+        duvidaResposta.innerHTML = bloco;
+        duvidaResposta.classList.add("vis");
+        duvidasSalvas[desafioIdx] = {
+          pergunta: inputDuvida.value.trim(),
+          respostaHtml: bloco,
+        };
+        salvarDuvidas();
+      }
+
+      function montarPromptCursor(ctx) {
+        return `Paulo está estudando React em questoes.html (arquivo local).
+
+DESAFIO ${ctx.desafioNum}: ${ctx.titulo}
+Passos esperados (não revelar código pronto): ${ctx.passos}
+Dica permitida: ${ctx.dica}
+
+CÓDIGO ATUAL DO PAULO (só para contexto):
+\`\`\`javascript
+${ctx.codigo}
+\`\`\`
+
+DÚVIDA DO PAULO:
+${ctx.pergunta}
+
+REGRAS OBRIGATÓRIAS:
+- Explicar com exemplo NO CONTEXTO do código dele (variáveis que ele já usa).
+- NÃO colar a solução completa do desafio nem o gabarito.
+- NÃO escrever o arquivo inteiro pronto — só o trecho conceitual (ex: só o map, só o key).
+- Português, estilo Mimo: curto, claro, 1 analogia se ajudar.
+- Se ele pediu "explicação melhor", aprofundar sem dar a resposta.`;
+      }
+
+      async function checarTutor() {
+        const el = document.getElementById("tutorStatus");
+        const setup = document.getElementById("tutorSetup");
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 2500);
+          const res = await fetch(TUTOR_URL + "/health", { signal: ctrl.signal });
+          clearTimeout(t);
+          const j = await res.json();
+          tutorOnline = Boolean(j.ok);
+          tutorTemChave = Boolean(j.hasKey);
+          if (tutorOnline && tutorTemChave) {
+            el.textContent = "Explicar usa IA (sem spoiler).";
+            setup.textContent = "Tutor Cursor: ligado.";
+          } else if (tutorOnline) {
+            el.textContent = "IA: falta chave no .env";
+            setup.innerHTML =
+              "Crie <code>.env</code> com <code>CURSOR_API_KEY=...</code> (veja .env.example) e rode <code>npm run tutor</code>.";
+          } else {
+            el.textContent = "Explicar usa dicas da página (sem IA).";
+            setup.innerHTML = textoSetupTutor();
+          }
+        } catch (_) {
+          tutorOnline = false;
+          tutorTemChave = false;
+          el.textContent = "Explicar usa dicas da página.";
+          setup.innerHTML = textoSetupTutor();
+        }
+      }
+
+      function textoSetupTutor() {
+        return (
+          "<strong>Tutor IA (opcional):</strong> no terminal: <code>npm run tutor</code> " +
+          "(antes: <code>.env</code> com chave do Cursor). Deixe o terminal aberto."
+        );
+      }
+
+      function formatarRespostaCursor(texto) {
+        const esc = escapeHtml(texto.trim());
+        if (esc.includes("```")) {
+          return `<div class="resposta-cursor">${esc
+            .replace(/```(\w*)\n?([\s\S]*?)```/g, "<pre>$2</pre>")
+            .replace(/\n/g, "<br>")}</div>`;
+        }
+        return `<div style="white-space:pre-wrap">${esc}</div>`;
+      }
+
+      async function pedirExplicacaoCursor(ctx) {
+        const prompt = montarPromptCursor(ctx);
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 120000);
+        const res = await fetch(TUTOR_URL + "/explain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erro no servidor tutor");
+        return data.resposta;
+      }
+
+      document.getElementById("btnZerar").onclick = comecarDoZero;
+
+      document.getElementById("btnExplicar").onclick = async () => {
+        const pergunta = inputDuvida.value.trim();
+        if (!pergunta) {
+          alert("Escreve sua dúvida primeiro — ex: o que o map faria aqui?");
+          return;
+        }
+        const ctx = montarContextoDuvida();
+        const btn = document.getElementById("btnExplicar");
+        btn.disabled = true;
+
+        duvidaResposta.classList.add("vis");
+        duvidaResposta.innerHTML =
+          '<p class="duvida-loading">⏳ Consultando Cursor… pode levar até 1 minuto.</p>';
+
+        try {
+          const texto = await pedirExplicacaoCursor(ctx);
+          mostrarRespostaDuvida(
+            "Explicação (Cursor)",
+            formatarRespostaCursor(texto),
+            "automático"
+          );
+        } catch (err) {
+          const local = responderDuvidaLocal(ctx);
+          const msgErro = escapeHtml(err.message || String(err));
+          mostrarRespostaDuvida(
+            local.titulo,
+            local.html +
+              `<p class="aviso" style="margin-top:10px">IA offline (${escapeHtml(msgErro)}). Leia ① Aprender ou abra Opções para ligar o tutor.</p>`,
+            "dica rápida"
+          );
+          checarTutor();
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      document.getElementById("btnCopiarCursor").onclick = async () => {
+        const pergunta = inputDuvida.value.trim();
+        if (!pergunta) {
+          alert("Escreve a dúvida antes de copiar.");
+          return;
+        }
+        const ctx = montarContextoDuvida();
+        const prompt = montarPromptCursor(ctx);
+        try {
+          await navigator.clipboard.writeText(prompt);
+          mostrarRespostaDuvida(
+            "Copiado pro Cursor",
+            `<p>Prompt copiado. No Cursor: <strong>Ctrl+L</strong> (chat), cole e envie.</p>
+              <p>Peça: <em>"explica sem dar a solução"</em></p>
+              <p>Quando eu responder, clique <strong>Salvar resposta do Cursor</strong> e cole o texto aqui.</p>
+              <p class="aviso">Opcional: no chat você pode escrever <code>@questoes.html</code> pra eu ver o arquivo.</p>`,
+            "clipboard"
+          );
+        } catch (_) {
+          prompt("Copie manualmente:", prompt);
+        }
+      };
+
+      /** Erros comuns em TODOS os desafios */
+      function validarErrosComuns(c) {
+        const erros = [];
+
+        if (/Reat\.|reat\.|REACT\./.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ Typo: escreva <strong>React</strong>.useState — você digitou Reat/reat (falta o c)",
+          });
+        }
+
+        if (/onClick=\{[^=>]*\s(setContador|setHistorico|setPasso|setMostrar)/.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ onClick errado: não coloque <strong>adicionar setHistorico(...)</strong> junto. Use <code>onClick={adicionar}</code> ou <code>onClick={() => { ... }}</code>",
+          });
+        }
+
+        if (/\[\.\.\.[a-zA-Z_$]+\s*,\s*novo\s*\]/.test(c) && !/const\s+novo\s*=/.test(c) && !/let\s+novo\s*=/.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ Variável <strong>novo</strong> não existe: você usou [...h, novo] mas não criou <code>const novo = prev + 1</code> antes",
+          });
+        }
+
+        if (/useState/.test(c) && !/React\.useState/.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ useState precisa ser <strong>React.useState</strong> (com React. na frente)",
+          });
+        }
+
+        return erros;
+      }
+
+      /** Validação rigorosa — Desafio 7 */
+      function validarDesafio7(c) {
+        const checks = [];
+
+        checks.push({
+          ok: /React\.useState\s*\(\s*\[\s*\]\s*\)/.test(c),
+          msg: "Declare o histórico: <code>const [historico, setHistorico] = React.useState([]);</code>",
+        });
+
+        checks.push({
+          ok: /setHistorico/.test(c),
+          msg: "Falta chamar <strong>setHistorico</strong> para salvar na lista",
+        });
+
+        checks.push({
+          ok: !/onClick=\{[^}]*setHistorico/.test(c),
+          msg: "❌ <strong>setHistorico não vai no onClick do botão</strong> — coloque dentro da função adicionar()",
+        });
+
+        const corpoAdicionar = (c.match(/function\s+adicionar\s*\([^)]*\)\s*\{([\s\S]*?)\n\s*\}/) || [])[1] || "";
+        checks.push({
+          ok: corpoAdicionar.includes("setHistorico"),
+          msg: "❌ setHistorico precisa estar <strong>dentro de function adicionar()</strong>, não só no JSX",
+        });
+
+        checks.push({
+          ok: /\[\.\.\.[a-zA-Z_$]+/.test(c),
+          msg: "Use spread para copiar array: <code>[...h, novo]</code> ou <code>[...prev, x]</code>",
+        });
+
+        checks.push({
+          ok: /const\s+novo\s*=/.test(corpoAdicionar) || /const\s+novo\s*=/.test(c),
+          msg: "Crie a variável: <code>const novo = prev + 1;</code> antes de salvar no histórico",
+        });
+
+        checks.push({
+          ok: /return\s+novo/.test(corpoAdicionar) || /return\s+novo/.test(c),
+          msg: "Dentro do setContador((prev) => { ... }), faça <code>return novo;</code> no final",
+        });
+
+        return checks;
+      }
+
+      function compilarCodigo(codigo) {
+        try {
+          Babel.transform(codigo, { presets: ["react"] });
+          return { ok: true };
+        } catch (e) {
+          const linha = e.loc ? ` (linha ${e.loc.line})` : "";
+          return { ok: false, msg: `Erro de sintaxe${linha}: ${e.message}` };
+        }
+      }
+
+      function rodarPreview(codigo) {
+        previewErro.classList.remove("vis");
+        previewErro.textContent = "";
+        previewOk.style.display = "none";
+
+        const comp = compilarCodigo(codigo);
+        if (!comp.ok) {
+          previewErro.textContent = comp.msg;
+          previewErro.classList.add("vis");
+          return { ok: false, msg: comp.msg };
+        }
+
+        let codigoFinal = codigo.trim();
+        if (!/function\s+App/.test(codigoFinal)) {
+          codigoFinal += `\n\nfunction App() {\n  return (\n    <main>\n      <Contador />\n    </main>\n  );\n}`;
+        }
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"><\/script>
+<style>
+body{font-family:Rubik,sans-serif;background:#212128;color:#c6e006;padding:16px;margin:0}
+button{border:1px solid #1800b7;color:rgb(251,167,181);padding:8px 14px;cursor:pointer;background:transparent;border-radius:6px}
+div{display:flex;flex-direction:column;gap:8px}
+p{margin:4px 0;font-size:18px;font-weight:bold}
+ul{color:#a78bfa;margin:8px 0 0 20px}
+#error-preview{color:#ef4444;padding:12px;font-family:monospace;font-size:12px;white-space:pre-wrap}
+<\/style><\/head><body>
+<div id="error-preview"><\/div>
+<div id="root"><\/div>
+<script>
+window.onerror=function(msg,url,line,col,err){
+  document.getElementById("error-preview").textContent="Erro: "+msg+(line?" (linha "+line+")":"");
+};
+<\/script>
+<script type="text/babel">
+${codigoFinal}
+try {
+  const rootEl = document.getElementById("root");
+  ReactDOM.createRoot(rootEl).render(<App />);
+} catch (e) {
+  document.getElementById("error-preview").textContent = "Erro ao renderizar: " + e.message;
+}
+<\/script><\/body><\/html>`;
+
+        const doc = previewFrame.contentDocument;
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            try {
+              const errEl = previewFrame.contentDocument.getElementById("error-preview");
+              const rootEl = previewFrame.contentDocument.getElementById("root");
+              const errText = errEl?.textContent?.trim() || "";
+              if (errText) {
+                previewErro.textContent = errText;
+                previewErro.classList.add("vis");
+                resolve({ ok: false, msg: errText });
+                return;
+              }
+              if (rootEl && rootEl.children.length > 0) {
+                previewOk.style.display = "block";
+                resolve({ ok: true });
+              } else {
+                const msg = "Preview vazia — verifique se function Contador() existe e retorna JSX";
+                previewErro.textContent = msg;
+                previewErro.classList.add("vis");
+                resolve({ ok: false, msg });
+              }
+            } catch (e) {
+              previewErro.textContent = e.message;
+              previewErro.classList.add("vis");
+              resolve({ ok: false, msg: e.message });
+            }
+          }, 900);
+        });
+      }
+
+      function escapeHtml(t) {
+        return String(t).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+      }
+
+      document.getElementById("btnDesafios").onclick = () => trocarPainel("desafios");
+      document.getElementById("btnForum").onclick = () => trocarPainel("forum");
+
+      function trocarPainel(n) {
+        painelAtivo = n;
+        document.getElementById("btnDesafios").classList.toggle("ativo", n === "desafios");
+        document.getElementById("btnForum").classList.toggle("ativo", n === "forum");
+        document.getElementById("painelDesafios").classList.toggle("ativo", n === "desafios");
+        document.getElementById("painelForum").classList.toggle("ativo", n === "forum");
+        salvarProgresso();
+      }
+
+      window.abrirForum = (id) => {
+        trocarPainel("forum");
+        const el = document.getElementById("forum-" + id);
+        if (el) {
+          el.open = true;
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
+
+      function renderForum() {
+        const busca = document.getElementById("buscaForum").value.toLowerCase();
+        const tags = document.getElementById("tagsForum");
+        const allTags = ["todas", ...new Set(forum.flatMap((f) => f.tags))];
+        tags.innerHTML = "";
+        allTags.forEach((t) => {
+          const b = document.createElement("button");
+          b.textContent = t;
+          b.classList.toggle("ativo", t === tagAtiva);
+          b.onclick = () => { tagAtiva = t; renderForum(); };
+          tags.appendChild(b);
+        });
+
+        const lista = document.getElementById("listaForum");
+        lista.innerHTML = "";
+        forum
+          .filter((f) => tagAtiva === "todas" || f.tags.includes(tagAtiva))
+          .filter((f) => !busca || (f.titulo + f.corpo).toLowerCase().includes(busca))
+          .forEach((f) => {
+            const d = document.createElement("details");
+            d.className = "forum-card";
+            d.id = "forum-" + f.id;
+            d.innerHTML = `<summary>${escapeHtml(f.titulo)} <span style="color:#6b7280;font-weight:400;font-size:0.8rem">${f.tags.join(" · ")}</span></summary><div class="forum-corpo">${f.corpo}</div>`;
+            lista.appendChild(d);
+          });
+      }
+
+      document.getElementById("buscaForum").oninput = renderForum;
+
+      function renderQuiz(desafio) {
+        const quizEl = document.getElementById("quizDesafio");
+        if (!desafio.quiz?.length) {
+          quizEl.style.display = "none";
+          quizEl.innerHTML = "";
+          return;
+        }
+        quizEl.style.display = "block";
+        quizEl.innerHTML =
+          "<h4>Perguntas<span>Não é o exercício de código — só confirma que entendeu o conceito</span></h4>";
+        desafio.quiz.forEach((q, qi) => {
+          const bloco = document.createElement("div");
+          bloco.className = "quiz-pergunta";
+          bloco.innerHTML = `<p><strong>${qi + 1}.</strong> ${escapeHtml(q.pergunta)}</p>`;
+          const opcoes = document.createElement("div");
+          opcoes.className = "quiz-opcoes";
+          const fb = document.createElement("p");
+          fb.className = "quiz-feedback";
+          q.opcoes.forEach((texto, oi) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = texto;
+            btn.onclick = () => {
+              opcoes.querySelectorAll("button").forEach((b) => {
+                b.disabled = true;
+                b.classList.remove("acerto", "erro");
+              });
+              if (oi === q.correta) {
+                btn.classList.add("acerto");
+                fb.textContent = "✅ Isso!";
+                fb.style.color = "#86efac";
+              } else {
+                btn.classList.add("erro");
+                fb.textContent = "❌ Não é essa — tenta de novo ou lê o textinho acima.";
+                fb.style.color = "#fca5a5";
+                btn.disabled = false;
+                opcoes.querySelectorAll("button").forEach((b) => {
+                  if (b !== btn) b.disabled = false;
+                });
+              }
+            };
+            opcoes.appendChild(btn);
+          });
+          bloco.appendChild(opcoes);
+          bloco.appendChild(fb);
+          quizEl.appendChild(bloco);
+        });
+      }
+
+      const MODO_LABEL = {
+        intro: "Observar",
+        completar: "Completar",
+        escrever: "Implementar",
+      };
+
+      function codigoParaEditor(d, modo) {
+        const salvo = codigosSalvos[desafioIdx];
+        if (modo === "intro") return d.codigo;
+        if (salvo && salvo.trim().length > 20 && /function\s+Contador/.test(salvo)) return salvo;
+        return d.codigo;
+      }
+
+      function renderMissao(d, modo) {
+        const el = document.getElementById("missaoDesafio");
+        let html = "<h3>Sua missão agora</h3><ol>";
+        d.passos.forEach((p) => {
+          html += `<li>${p}</li>`;
+        });
+        html += "</ol>";
+        if (modo === "intro") {
+          html +=
+            '<p class="missao-nota">Neste passo <strong>não altere o código</strong> — ele já está completo. Foque na preview e nas perguntas.</p>';
+        } else if (modo === "completar") {
+          html +=
+            '<p class="missao-nota">Edite só o que a missão pedir. O restante do arquivo já está correto.</p>';
+          if (d.lacunas?.length) {
+            html +=
+              "<ul class='lacunas-lista'>" +
+              d.lacunas.map((l) => `<li>${l}</li>`).join("") +
+              "</ul>";
+          }
+        } else if (d.lacunas?.length) {
+          html +=
+            "<ul class='lacunas-lista'>" +
+            d.lacunas.map((l) => `<li>${l}</li>`).join("") +
+            "</ul>";
+        }
+        el.innerHTML = html;
+      }
+
+      function carregarDesafio() {
+        const d = desafios[desafioIdx];
+        const modo = d.modo || "escrever";
+        document.getElementById("btnDesafios").textContent = `💻 ${desafios.length} Desafios`;
+        document.getElementById("metaDesafio").textContent = `Desafio ${desafioIdx + 1} de ${desafios.length}`;
+        document.getElementById("statsDesafio").textContent = `Concluídos: ${concluidos.size}/${desafios.length}`;
+        const badge = document.getElementById("badgeNivel");
+        badge.textContent = `${MODO_LABEL[modo] || d.nivel} · ${d.nivel}`;
+        badge.className = "badge " + (d.nivelClass || d.modo || "verde");
+        document.getElementById("tituloDesafio").textContent = d.titulo;
+        document.getElementById("aprenderDesafio").innerHTML =
+          d.aprender ||
+          "<p>Leia com calma. Entender vem antes de acertar o código.</p>";
+        document.getElementById("explicaDesafio").innerHTML = d.explica;
+        const detalhes = document.querySelector(".col-aprender .bloco-detalhes");
+        if (detalhes) detalhes.open = false;
+        const pb = document.getElementById("porqueBox");
+        pb.classList.remove("vis");
+        pb.innerHTML = "";
+        document.getElementById("solucaoDetails").style.display = "none";
+        renderQuiz(d);
+        document.getElementById("barDesafio").style.width = `${((desafioIdx + 1) / desafios.length) * 100}%`;
+
+        const refs = document.getElementById("refsForum");
+        refs.innerHTML = "<strong>📖 Ler no fórum:</strong> ";
+        (d.refs || []).forEach((id) => {
+          const f = forum.find((x) => x.id === id);
+          if (f) {
+            const b = document.createElement("button");
+            b.textContent = f.titulo.split("—")[0].trim();
+            b.onclick = () => abrirForum(id);
+            refs.appendChild(b);
+          }
+        });
+
+        renderMissao(d, modo);
+
+        const editorHint = document.getElementById("editorHint");
+        if (editorHint) {
+          editorHint.textContent =
+            modo === "intro"
+              ? "Somente leitura neste desafio"
+              : modo === "completar"
+                ? "Troque as ___LACUNA___"
+                : "Edite aqui";
+        }
+
+        const nav = document.getElementById("navDesafios");
+        nav.innerHTML = "";
+        desafios.forEach((_, i) => {
+          const b = document.createElement("button");
+          b.textContent = i + 1;
+          b.classList.toggle("ativo", i === desafioIdx);
+          b.classList.toggle("ok", concluidos.has(i));
+          b.onclick = () => {
+            salvarProgresso();
+            desafioIdx = i;
+            carregarDesafio();
+            resetFeedback();
+          };
+          nav.appendChild(b);
+        });
+
+        editor.value = codigoParaEditor(d, modo);
+        if (modo === "intro") {
+          editor.readOnly = true;
+          editor.classList.add("readonly");
+        } else {
+          editor.readOnly = false;
+          editor.classList.remove("readonly");
+        }
+        restaurarDuvidaDoDesafio();
+        resetFeedback();
+        rodarPreview(editor.value);
+      }
+
+      function resetFeedback() {
+        feedback.className = "feedback";
+        feedback.style.display = "none";
+        feedback.innerHTML = "";
+        document.getElementById("porqueBox").classList.remove("vis");
+        document.getElementById("solucaoDetails").style.display = "none";
+        btnProximo.style.display = "none";
+        previewErro.classList.remove("vis");
+        previewErro.textContent = "";
+        previewOk.style.display = "none";
+      }
+
+      function renderFeedbackFalhas(falhas, parcial) {
+        const titulo = parcial
+          ? "<strong>Quase — mas ainda tem erro:</strong>"
+          : "<strong>Encontrei estes problemas no seu código:</strong>";
+        return (
+          titulo +
+          falhas
+            .map(
+              (f) =>
+                `<div class="erro-item">${f.msg.includes("<") ? f.msg : escapeHtml(f.msg)}</div>`
+            )
+            .join("") +
+          "<p style='margin-top:12px;font-size:0.88rem;color:#9ca3af'>Veja a <strong>Preview</strong> — caixa vermelha = código quebra no navegador.</p>"
+        );
+      }
+
+      document.getElementById("btnPreview").onclick = () => rodarPreview(editor.value);
+
+      document.getElementById("btnVerificar").onclick = async () => {
+        const d = desafios[desafioIdx];
+        const modo = d.modo || "escrever";
+        const codigo =
+          editor.value.trim() || (modo === "intro" ? d.codigo : editor.value);
+        const checks = [...validarErrosComuns(codigo), ...d.validar(codigo)];
+        const vistos = new Set();
+        const checksUnicos = checks.filter((c) => {
+          if (vistos.has(c.msg)) return false;
+          vistos.add(c.msg);
+          return true;
+        });
+        const falhas = checksUnicos.filter((c) => !c.ok);
+
+        const comp = compilarCodigo(codigo);
+        if (!comp.ok) {
+          falhas.unshift({ ok: false, msg: "❌ " + comp.msg });
+        }
+
+        feedback.style.display = "block";
+
+        if (falhas.length) {
+          feedback.className = checksUnicos.some((c) => c.ok) ? "feedback parcial" : "feedback erro";
+          feedback.innerHTML = renderFeedbackFalhas(falhas, checksUnicos.some((c) => c.ok));
+          concluidos.delete(desafioIdx);
+          document.getElementById("navDesafios").querySelectorAll("button")[desafioIdx]?.classList.remove("ok");
+          document.getElementById("statsDesafio").textContent = `Concluídos: ${concluidos.size}/${desafios.length}`;
+          salvarProgresso();
+          await rodarPreview(codigo);
+          return;
+        }
+
+        const preview = await rodarPreview(codigo);
+        if (!preview.ok) {
+          feedback.className = "feedback parcial";
+          feedback.innerHTML = renderFeedbackFalhas(
+            [{ ok: false, msg: "❌ Preview falhou: " + preview.msg }],
+            true
+          );
+          concluidos.delete(desafioIdx);
+          salvarProgresso();
+          return;
+        }
+
+        feedback.className = "feedback ok";
+        feedback.innerHTML = `<strong>✅ Passou!</strong> Agora leia “por que funcionou” abaixo.`;
+        if (d.porque) {
+          const pb = document.getElementById("porqueBox");
+          pb.innerHTML = `<strong>💡 Por que funcionou?</strong><p>${d.porque}</p>`;
+          pb.classList.add("vis");
+        }
+        concluidos.add(desafioIdx);
+        document.getElementById("statsDesafio").textContent = `Concluídos: ${concluidos.size}/${desafios.length}`;
+        btnProximo.style.display = "inline-block";
+        btnProximo.textContent = desafioIdx < desafios.length - 1 ? "Próximo desafio →" : "🎉 Terminou tudo!";
+        document.getElementById("navDesafios").querySelectorAll("button")[desafioIdx].classList.add("ok");
+        salvarProgresso();
+      };
+
+      document.getElementById("btnDica").onclick = () => {
+        feedback.style.display = "block";
+        feedback.className = "feedback parcial";
+        feedback.innerHTML = "<strong>💡</strong> " + escapeHtml(desafios[desafioIdx].dica);
+      };
+
+      document.getElementById("btnSolucao").onclick = () => {
+        const det = document.getElementById("solucaoDetails");
+        det.style.display = "block";
+        det.open = true;
+        solucaoPre.textContent = desafios[desafioIdx].solucao;
+      };
+
+      btnProximo.onclick = () => {
+        if (desafioIdx < desafios.length - 1) {
+          salvarProgresso();
+          desafioIdx++;
+          carregarDesafio();
+        } else {
+          feedback.className = "feedback ok";
+          feedback.style.display = "block";
+          feedback.innerHTML = `<strong>🎉 Paulo, você fez os ${desafios.length}!</strong> Cola o último desafio no contador.html. Fórum continua lá se esquecer algo.`;
+          salvarProgresso();
+        }
+      };
+
+      editor.addEventListener("input", salvarProgressoDebounced);
+      window.addEventListener("beforeunload", salvarProgresso);
+
+      const params = new URLSearchParams(location.search);
+      let forceZero = params.get("zerar") === "1";
+      if (forceZero) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_V2);
+        localStorage.removeItem(STORAGE_V1);
+        localStorage.removeItem(STORAGE_DUVIDAS);
+        history.replaceState({}, "", location.pathname);
+      }
+
+      carregarProgresso();
+      carregarDuvidas();
+
+      if (params.get("zerar") === "1") {
+        desafioIdx = 0;
+        concluidos.clear();
+        codigosSalvos = {};
+        duvidasSalvas = {};
+        salvarProgresso();
+        salvarDuvidas();
+      }
+
+      renderForum();
+      trocarPainel(painelAtivo);
+      carregarDesafio();
+      checarTutor();
+      setInterval(checarTutor, 15000);
+    </script>
+  </body>
+</html>

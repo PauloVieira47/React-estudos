@@ -52,13 +52,17 @@
     <script type="text/babel">
       function Contador() {
         const [contador, setContador] = React.useState(0);
+
         return (
           <div>
-            <h1>Contador: {contador}</h1>
-
+            <p>contador : {contador} </p>
             <button onClick={() => setContador(contador + 1)}>adicionar</button>
             <button onClick={() => setContador(0)}>resetar</button>
-            <button onClick={() => setContador(contador - 1)}>remover</button>
+            <button
+              onClick={() => setContador((prev) => Math.max(0, prev - 1))}
+            >
+              remover
+            </button>
           </div>
         );
       }
