@@ -1,4 +1,4 @@
-const CACHE = "react-estudos-v2";
+const CACHE = "react-estudos-v3";
 const ASSETS = [
   "./index.html",
   "./questoes.html",
