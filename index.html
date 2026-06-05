@@ -1,258 +1,2539 @@
-<!doctype html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>Calculadora</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#462878" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="React Estudos" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.svg" />
+    <title>React — 50 Perguntas (Mimo)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --bg: #462878;
+        --surface: #2d2a37;
+        --surface2: #1a1724;
+        --border: #3b3650;
+        --accent: #807ece;
+        --text: #ebebeb;
+        --muted: #9ca3af;
+        --safe-b: env(safe-area-inset-bottom, 0px);
+      }
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        font-family: "Rubik", sans-serif;
+        background: var(--surface);
+        color: var(--text);
+        padding: 0;
+      }
+      .app {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: calc(56px + var(--safe-b));
+      }
+      .topo-fixo {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+      }
+      .topo-linha {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .topo-linha h1 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #ddd6fe;
+        flex: 1;
+        text-align: center;
+      }
+      .nav-seta {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 12px;
+        background: var(--surface);
+        color: #c4b5fd;
+        font-size: 1.1rem;
+        cursor: pointer;
+        font-family: inherit;
+        flex-shrink: 0;
+      }
+      .nav-seta:disabled { opacity: 0.35; cursor: default; }
+      .conteudo-scroll {
+        flex: 1;
+        padding: 14px 16px 20px;
+        overflow-x: hidden;
+      }
+      @media (min-width: 768px) {
+        .app {
+          max-width: 640px;
+          margin: 0 auto;
+          border-left: 1px solid var(--border);
+          border-right: 1px solid var(--border);
+        }
+      }
+      .header { display: none; }
+      .tab-bar {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        display: flex;
+        background: var(--surface2);
+        border-top: 1px solid var(--border);
+        padding-bottom: var(--safe-b);
+        z-index: 50;
+      }
+      .tab-bar button {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        padding: 12px 8px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+      .tab-bar button.ativo { color: #fff; border-top: 2px solid var(--accent); margin-top: -1px; }
+      .modos { display: none; }
+      .painel { display: none; }
+      .painel.ativo { display: block; }
+      .progress-wrap {
+        height: 4px;
+        background: #1a1724;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 0;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #807ece, #a78bfa);
+        transition: width 0.35s;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .badge {
+        display: inline-block;
+        background: #462878;
+        color: #ddd6fe;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 999px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+      .badge.verde { background: #14532d; color: #bbf7d0; }
+      .badge.amarelo { background: #422006; color: #fde68a; }
+      .badge.vermelho { background: #7f1d1d; color: #fecaca; }
+      .badge.intro { background: #1e3a5f; color: #93c5fd; }
+      .badge.completar { background: #134e4a; color: #6ee7b7; }
+      .lacunas-lista {
+        margin: 10px 0 0 18px;
+        color: #a78bfa;
+        font-size: 0.88rem;
+      }
+      .lacunas-lista li { margin-bottom: 6px; }
+      h2 { font-size: 1.15rem; line-height: 1.5; margin-bottom: 14px; }
+      pre {
+        background: #1a1724;
+        padding: 16px;
+        border-radius: 12px;
+        overflow-x: auto;
+        margin: 12px 0;
+        color: #c4b5fd;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        border: 1px solid #3b3650;
+      }
+      code {
+        background: #1a1724;
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: #a78bfa;
+        font-size: 0.88em;
+      }
+      .btn {
+        border: none;
+        background: linear-gradient(180deg, #807ece, #6b6bb8);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin: 8px 8px 0 0;
+      }
+      .btn.sec { background: #3b3650; }
+      .btn.ghost { background: transparent; border: 2px solid #3b3650; }
+
+      /* Fórum */
+      .forum-busca {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 2px solid #3b3650;
+        background: #1a1724;
+        color: #ebebeb;
+        font-family: inherit;
+        margin-bottom: 16px;
+      }
+      .forum-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+      .forum-tags button {
+        border: 1px solid #3b3650;
+        background: #1a1724;
+        color: #9ca3af;
+        padding: 6px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-family: inherit;
+      }
+      .forum-tags button.ativo { border-color: #807ece; color: #ddd6fe; }
+      .forum-lista { display: flex; flex-direction: column; gap: 14px; }
+      .forum-card {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .forum-card summary {
+        padding: 16px 18px;
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .forum-card summary::-webkit-details-marker { display: none; }
+      .forum-card summary::before { content: "▶"; font-size: 0.7rem; color: #807ece; }
+      .forum-card[open] summary::before { content: "▼"; }
+      .forum-corpo {
+        padding: 0 18px 20px;
+        line-height: 1.75;
+        color: #d1d5db;
+        font-size: 0.93rem;
+        border-top: 1px solid #3b3650;
+      }
+      .forum-corpo p { margin: 12px 0; }
+      .forum-corpo ul, .forum-corpo ol { margin: 10px 0 10px 22px; }
+      .forum-corpo li { margin-bottom: 6px; }
+      .forum-corpo h4 {
+        color: #f3f4f6;
+        margin: 18px 0 8px;
+        font-size: 0.95rem;
+      }
+      .paulo {
+        background: #2d2a37;
+        border-left: 4px solid #807ece;
+        padding: 14px 16px;
+        border-radius: 0 10px 10px 0;
+        margin: 14px 0;
+        color: #e5e7eb;
+      }
+      .erro-comum {
+        background: #422006;
+        border-left: 4px solid #f59e0b;
+        padding: 12px 14px;
+        border-radius: 0 10px 10px 0;
+        margin: 12px 0;
+        color: #fde68a;
+        font-size: 0.88rem;
+      }
+
+      .desafio-nav { display: none; }
+      .mapa-perguntas {
+        margin-bottom: 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .mapa-perguntas summary {
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        color: var(--muted);
+        list-style: none;
+        background: var(--surface2);
+      }
+      .mapa-perguntas summary::-webkit-details-marker { display: none; }
+      .mapa-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 4px;
+        padding: 10px;
+        background: #0f0d14;
+      }
+      .mapa-grid button {
+        aspect-ratio: 1;
+        min-height: 28px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 0;
+      }
+      .mapa-grid button.ativo { background: #462878; color: #fff; border-color: var(--accent); }
+      .mapa-grid button.ok { border-color: #22c55e; color: #86efac; }
+      .explica-desafio {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 18px;
+        line-height: 1.7;
+        color: #d1d5db;
+        font-size: 0.92rem;
+      }
+      .explica-desafio h3 { color: #f9fafb; margin-bottom: 10px; font-size: 1rem; }
+      .explica-desafio h4 {
+        color: #c4b5fd;
+        margin: 18px 0 8px;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+      .doc-bloco {
+        background: #0f0d14;
+        border: 1px solid #3b3650;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin: 12px 0;
+      }
+      .doc-bloco.porque { border-left: 4px solid #807ece; }
+      .doc-bloco.como { border-left: 4px solid #22c55e; }
+      .doc-bloco.agora { border-left: 4px solid #f59e0b; }
+      .forum-corpo h4 { margin-top: 20px; }
+      .forum-corpo .doc-tabela {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 0.88rem;
+      }
+      .forum-corpo .doc-tabela th,
+      .forum-corpo .doc-tabela td {
+        border: 1px solid #3b3650;
+        padding: 10px 12px;
+        text-align: left;
+      }
+      .forum-corpo .doc-tabela th { background: #2d2a37; color: #c4b5fd; }
+      .linha-passo {
+        display: flex;
+        gap: 12px;
+        margin: 10px 0;
+        align-items: flex-start;
+      }
+      .linha-passo .num {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        background: #462878;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+      .passos {
+        background: #1a1724;
+        border-radius: 14px;
+        padding: 16px 18px;
+        margin-bottom: 16px;
+        line-height: 1.65;
+      }
+      .passos ol { margin: 10px 0 0 20px; }
+      .passos li { margin-bottom: 8px; }
+      .passos li.ok { color: #86efac; }
+      .mimo-chip {
+        display: inline-block;
+        background: #422006;
+        color: #fde68a;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 10px;
+      }
+      .explica-desafio p { margin-bottom: 8px; }
+      .explica-desafio pre { margin: 10px 0; font-size: 0.8rem; }
+      .quiz-mimo {
+        background: #0f0d14;
+        border: 1px solid #3b3650;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+      }
+      .quiz-mimo h4 {
+        color: #c4b5fd;
+        font-size: 0.88rem;
+        margin-bottom: 10px;
+      }
+      .quiz-pergunta { margin-bottom: 14px; }
+      .quiz-pergunta p { font-size: 0.9rem; margin-bottom: 8px; color: #e5e7eb; }
+      .quiz-opcoes { display: flex; flex-direction: column; gap: 6px; }
+      .quiz-opcoes button {
+        text-align: left;
+        border: 2px solid #3b3650;
+        background: #1a1724;
+        color: #d1d5db;
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.86rem;
+      }
+      .quiz-opcoes button:hover { border-color: #807ece; }
+      .quiz-opcoes button.acerto { border-color: #22c55e; background: #14532d; color: #bbf7d0; }
+      .quiz-opcoes button.erro { border-color: #ef4444; background: #7f1d1d; color: #fecaca; }
+      .quiz-feedback { font-size: 0.82rem; margin-top: 6px; color: #9ca3af; }
+      .duvida-wrap {
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin: 20px 0 16px;
+      }
+      .duvida-wrap label {
+        display: block;
+        font-size: 0.88rem;
+        color: #c4b5fd;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .duvida-wrap textarea {
+        width: 100%;
+        min-height: 72px;
+        background: #0f0d14;
+        border: 2px solid #3b3650;
+        border-radius: 12px;
+        color: #e5e7eb;
+        padding: 12px 14px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: vertical;
+      }
+      .duvida-wrap textarea:focus {
+        outline: none;
+        border-color: #807ece;
+      }
+      .tutor-status {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .tutor-status code { font-size: 0.78rem; }
+      .duvida-botoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+      .duvida-loading { color: #c4b5fd; font-size: 0.88rem; margin-top: 10px; }
+      .duvida-resposta {
+        margin-top: 14px;
+        padding: 14px 16px;
+        background: #0f0d14;
+        border-radius: 12px;
+        border-left: 4px solid #807ece;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        color: #d1d5db;
+        display: none;
+      }
+      .duvida-resposta.vis { display: block; }
+      .duvida-resposta h5 { color: #a78bfa; margin-bottom: 8px; font-size: 0.85rem; }
+      .duvida-resposta pre {
+        margin: 10px 0;
+        font-size: 0.78rem;
+        padding: 12px;
+      }
+      .duvida-resposta .aviso {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #3b3650;
+      }
+      .reset-wrap {
+        margin-bottom: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .reset-wrap .hint { font-size: 0.8rem; color: #9ca3af; }
+      .btn.perigo {
+        background: linear-gradient(180deg, #991b1b, #7f1d1d);
+      }
+      .refs-forum { margin: 12px 0; font-size: 0.85rem; }
+      .refs-forum button {
+        background: #3b3650;
+        border: none;
+        color: #c4b5fd;
+        padding: 4px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        margin: 2px 4px 2px 0;
+        font-family: inherit;
+      }
+      .editor-wrap label {
+        display: block;
+        font-size: 0.85rem;
+        color: #c4b5fd;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      textarea {
+        width: 100%;
+        min-height: 260px;
+        background: #0f0d14;
+        color: #e2e8f0;
+        border: 2px solid #3b3650;
+        border-radius: 14px;
+        padding: 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        resize: vertical;
+      }
+      textarea:focus { outline: none; border-color: #807ece; }
+      .feedback {
+        display: none;
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 14px;
+        line-height: 1.6;
+        font-size: 0.92rem;
+      }
+      .feedback.ok { display: block; background: #14532d; border: 1px solid #22c55e; color: #bbf7d0; }
+      .feedback.parcial { display: block; background: #422006; border: 1px solid #f59e0b; color: #fde68a; }
+      .feedback.erro { display: block; background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; }
+      .solucao-box { display: none; margin-top: 14px; }
+      .solucao-box.vis { display: block; }
+
+      .preview-wrap {
+        margin: 18px 0;
+        background: #1a1724;
+        border: 1px solid #3b3650;
+        border-radius: 16px;
+        padding: 16px;
+      }
+      .preview-wrap label {
+        display: block;
+        font-size: 0.85rem;
+        color: #c4b5fd;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .preview-frame {
+        width: 100%;
+        min-height: 200px;
+        border: 2px solid #3b3650;
+        border-radius: 12px;
+        background: #212128;
+      }
+      .preview-erro {
+        display: none;
+        margin-top: 10px;
+        padding: 12px 14px;
+        background: #7f1d1d;
+        border: 1px solid #ef4444;
+        border-radius: 10px;
+        color: #fecaca;
+        font-size: 0.85rem;
+        line-height: 1.55;
+        font-family: "JetBrains Mono", monospace;
+        white-space: pre-wrap;
+      }
+      .preview-erro.vis { display: block; }
+      .preview-ok {
+        margin-top: 8px;
+        font-size: 0.82rem;
+        color: #86efac;
+      }
+      .erro-item {
+        margin: 8px 0;
+        padding: 10px 12px;
+        background: rgba(0,0,0,0.25);
+        border-radius: 8px;
+        border-left: 3px solid #ef4444;
+      }
+      .erro-item strong { color: #fca5a5; }
+
+      .layout-estudo { display: flex; flex-direction: column; gap: 12px; }
+      .secao { margin-bottom: 12px; }
+      .secao-titulo {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .secao-titulo.teoria { color: #93c5fd; }
+      .secao-titulo.pratica { color: #6ee7b7; }
+      .conceito-box { line-height: 1.65; font-size: 0.94rem; color: #f3f4f6; }
+      .conceito-box p { margin-bottom: 8px; }
+      .revisao-chip {
+        display: inline-block;
+        background: #1e3a5f;
+        color: #93c5fd;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .quiz-explicacao {
+        margin-top: 8px;
+        padding: 10px 12px;
+        background: #0f0d14;
+        border-radius: 10px;
+        border-left: 3px solid var(--accent);
+        font-size: 0.84rem;
+        color: #d1d5db;
+        line-height: 1.55;
+      }
+      .acoes-sticky {
+        margin-top: 16px;
+        padding: 0;
+      }
+      .secao-pratica.oculta { display: none; }
+      .acoes-principais .btn { flex: 1; min-width: calc(50% - 4px); text-align: center; }
+      .mini-tabela {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 0.86rem;
+      }
+      .mini-tabela th,
+      .mini-tabela td {
+        border: 1px solid #3b3650;
+        padding: 8px 10px;
+        text-align: left;
+      }
+      .mini-tabela th { color: #a78bfa; background: #0f0d14; }
+      .missao-box {
+        background: var(--surface2);
+        border-left: 3px solid #22c55e;
+        border-radius: 0 10px 10px 0;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+      }
+      .missao-box h3 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #6ee7b7;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .missao-texto {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #f3f4f6;
+        margin-bottom: 14px;
+      }
+      .missao-texto p { margin-bottom: 8px; }
+      .missao-ferramentas {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: #0f0d14;
+        border-radius: 8px;
+        font-size: 0.84rem;
+        color: #c4b5fd;
+      }
+      .missao-box ol {
+        margin: 0 0 0 4px;
+        padding: 0;
+        list-style: none;
+        counter-reset: missao;
+      }
+      .missao-box ol li {
+        counter-increment: missao;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        font-size: 0.94rem;
+        line-height: 1.5;
+        color: #f3f4f6;
+      }
+      .missao-box ol li::before {
+        content: counter(missao);
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        background: #22c55e;
+        color: #052e16;
+        font-weight: 700;
+        font-size: 0.82rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .missao-nota {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 8px;
+        font-size: 0.84rem;
+        color: #d1d5db;
+      }
+      .quiz-area {
+        background: transparent;
+        border: none;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+        padding: 14px 0;
+        margin-bottom: 14px;
+      }
+      .quiz-area h4 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #c4b5fd;
+        margin-bottom: 12px;
+      }
+      .quiz-area h4 span {
+        display: block;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        color: #9ca3af;
+        font-size: 0.78rem;
+        margin-top: 4px;
+      }
+      .editor-cabecalho {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+      .editor-cabecalho label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #fde68a;
+      }
+      .editor-cabecalho span {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+      .bloco { background: transparent; border: none; padding: 0; margin-bottom: 0; }
+      .bloco-titulo {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
+        margin-bottom: 10px;
+      }
+      .bloco-titulo.conceito { color: #93c5fd; }
+      .bloco-titulo.pratica { color: #6ee7b7; }
+      .texto-aprender {
+        font-size: 0.94rem;
+        line-height: 1.65;
+        color: #f3f4f6;
+      }
+      .texto-aprender p { margin-bottom: 8px; }
+      .porque-box {
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: #0f0d14;
+        border-radius: 10px;
+        border-left: 3px solid #22c55e;
+        font-size: 0.88rem;
+        color: #bbf7d0;
+        display: none;
+      }
+      .porque-box.vis { display: block; }
+      .bloco-detalhes {
+        margin-top: 10px;
+        border: 1px solid #3b3650;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .bloco-detalhes summary {
+        padding: 10px 12px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        color: #9ca3af;
+        background: #0f0d14;
+        list-style: none;
+      }
+      .bloco-detalhes summary::-webkit-details-marker { display: none; }
+      .bloco-detalhes .explica-desafio {
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        padding: 12px 14px;
+        font-size: 0.88rem;
+      }
+      .passos.compact {
+        margin-bottom: 12px;
+        padding: 12px 14px;
+        font-size: 0.88rem;
+      }
+      .acoes-principais {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .acoes-principais .btn { margin: 0; }
+      .preview-wrap.compact { margin-bottom: 10px; }
+      .preview-wrap.compact label { font-size: 0.82rem; margin-bottom: 6px; }
+      .preview-frame { height: 140px; }
+      .editor-wrap textarea { min-height: 160px; }
+      .editor-wrap textarea.readonly {
+        opacity: 0.92;
+        cursor: default;
+        border-color: #3b3650;
+        background: #14121c;
+      }
+      .bloco-opcional {
+        border: 1px dashed #3b3650;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .bloco-opcional summary {
+        padding: 12px 14px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        color: #c4b5fd;
+        font-weight: 600;
+        list-style: none;
+        background: #1a1724;
+      }
+      .bloco-opcional summary::-webkit-details-marker { display: none; }
+      .bloco-opcional .interno { padding: 0 14px 14px; }
+      .tutor-status { font-size: 0.78rem; margin-bottom: 8px; }
+      .duvida-wrap { margin: 0; padding: 0; background: transparent; border: none; }
+      .duvida-wrap textarea { min-height: 56px; }
+      .header-compact h1 { font-size: 1.25rem; }
+      .header-compact p { font-size: 0.85rem; }
+      .topo-desafio { margin-bottom: 14px; }
+      .topo-desafio h2 { margin-bottom: 6px; font-size: 1.12rem; line-height: 1.4; font-weight: 600; }
+      .refs-forum { font-size: 0.8rem; margin-bottom: 8px; }
+      .refs-forum:empty { display: none; }
+      .reset-wrap { margin-bottom: 8px; }
+      .reset-wrap .hint { display: none; }
+    </style>
   </head>
-
-  <style>
-    body {
-      background-color: #807ece;
-      font-family: "Rubik", sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      padding: 0;
-      margin: 0;
-
-      font-family: "Rubik", sans-serif;
-      font-optical-sizing: auto;
-    }
-
-    .card-calculadora {
-      width: 300px;
-      height: 426px;
-      padding: 16px;
-      border-radius: 16px;
-      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.655);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background-color: #2d2a37;
-      gap: 16px;
-    }
-
-    .container-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 10px;
-    }
-
-    input {
-      width: 100%;
-      height: 40px;
-      border-radius: 10px;
-      border: none;
-      background-color: transparent;
-      color: #bfbfbf;
-      font-size: 24px;
-      font-weight: bold;
-      text-align: right;
-      padding: 0 32px;
-      box-sizing: border-box;
-      cursor: default;
-    }
-
-    button {
-      background:
-        linear-gradient(180deg, #00000005 0%, #ffffff05 100%), #2d2a37;
-      box-shadow: 0 11px 7px 0 rgba(6, 6, 6, 0.26);
-      font-size: 24px;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: none;
-      color: #ebebeb;
-      position: relative;
-    }
-    button::before {
-      content: "";
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      box-shadow: 0 -1px 3px 0 rgba(255, 255, 255, 0.13);
-      z-index: 1;
-    }
-    button:hover {
-      background-color: #201d27;
-      transition: all 0.3s ease;
-
-      cursor: pointer;
-    }
-
-    .color-roxo {
-      color: #975dfa;
-    }
-    .button-roxo {
-      background:
-        linear-gradient(180deg, #00000005 0%, #ffffff05 100%), #462878;
-      box-shadow: 0 11px 7px 0 rgba(6, 6, 6, 0.26);
-    }
-    .button-roxo::before {
-      content: "";
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      box-shadow: 0 -2px 3px 0 rgba(255, 255, 255, 0.13);
-      z-index: 1;
-    }
-    .button-roxo:hover {
-      background-color: #462790;
-    }
-    .button-igual {
-      background:
-        linear-gradient(180deg, #00000015 0%, #ffffff05 100%), #7f45e2;
-      box-shadow: 0 11px 7px 0 rgba(6, 6, 6, 0.26);
-    }
-
-    .button-igual::before {
-      content: "";
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      box-shadow: 0 -2px 3px 0 rgba(255, 255, 255, 0.13);
-    }
-
-    .button-igual:hover {
-      background-color: #6a37c2;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-  </style>
-
   <body>
-    <div class="card-calculadora">
-      <input
-        onChange="adicionarNumero(this.value)"
-        type="text"
-        id="input"
-        placeholder="0"
-      />
-      <div class="container-buttons">
-        <button onclick="limpar()" class="color-roxo">CE</button>
-        <button onclick="apagarUltimo()" class="color-roxo">C</button>
-        <button onclick="adicionarNumero('%')" class="color-roxo">%</button>
-        <button onclick="adicionarNumero('/')" class="button-roxo">
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 28 28"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M3.5 14C3.5 13.5168 3.89175 13.125 4.375 13.125H23.625C24.1082 13.125 24.5 13.5168 24.5 14C24.5 14.4832 24.1082 14.875 23.625 14.875H4.375C3.89175 14.875 3.5 14.4832 3.5 14Z"
-              fill="#EBEBEB"
-            />
-            <path
-              d="M14 8.75C14.9665 8.75 15.75 7.9665 15.75 7C15.75 6.0335 14.9665 5.25 14 5.25C13.0335 5.25 12.25 6.0335 12.25 7C12.25 7.9665 13.0335 8.75 14 8.75Z"
-              fill="#EBEBEB"
-            />
-            <path
-              d="M14 22.75C14.9665 22.75 15.75 21.9665 15.75 21C15.75 20.0335 14.9665 19.25 14 19.25C13.0335 19.25 12.25 20.0335 12.25 21C12.25 21.9665 13.0335 22.75 14 22.75Z"
-              fill="#EBEBEB"
-            />
-          </svg>
-        </button>
+    <div class="app" id="app">
+      <div class="modos">
+        <button type="button" class="ativo" id="btnDesafios">Desafios</button>
+        <button type="button" id="btnForum">Fórum</button>
+      </div>
 
-        <button onclick="adicionarNumero(7)">7</button>
-        <button onclick="adicionarNumero(8)">8</button>
-        <button onclick="adicionarNumero(9)">9</button>
-        <button onclick="adicionarNumero('*')" class="button-roxo">X</button>
+      <!-- DESAFIOS -->
+      <div class="painel ativo" id="painelDesafios">
+        <header class="topo-fixo">
+          <div class="topo-linha">
+            <button type="button" class="nav-seta" id="btnAnterior" aria-label="Anterior">←</button>
+            <h1 id="topoTitulo">React</h1>
+            <button type="button" class="nav-seta" id="btnSeguinte" aria-label="Próxima">→</button>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" id="barDesafio"></div></div>
+        </header>
 
-        <button onclick="adicionarNumero(4)">4</button>
-        <button onclick="adicionarNumero(5)">5</button>
-        <button onclick="adicionarNumero(6)">6</button>
-        <button onclick="adicionarNumero('-')" class="button-roxo">-</button>
-        <button onclick="adicionarNumero(1)">1</button>
-        <button onclick="adicionarNumero(2)">2</button>
-        <button onclick="adicionarNumero(3)">3</button>
-        <button onclick="adicionarNumero('+')" class="button-roxo">+</button>
-        <button>
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 28 28"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M22.4937 5.50628C22.8354 5.84799 22.8354 6.40201 22.4937 6.74372L6.74372 22.4937C6.40201 22.8354 5.84799 22.8354 5.50628 22.4937C5.16457 22.152 5.16457 21.598 5.50628 21.2563L21.2563 5.50628C21.598 5.16457 22.152 5.16457 22.4937 5.50628Z"
-              fill="#EBEBEB"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M2.625 7.875C2.625 7.39175 3.01675 7 3.5 7H12.25C12.7332 7 13.125 7.39175 13.125 7.875C13.125 8.35825 12.7332 8.75 12.25 8.75H3.5C3.01675 8.75 2.625 8.35825 2.625 7.875Z"
-              fill="#EBEBEB"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M7.875 2.625C8.35825 2.625 8.75 3.01675 8.75 3.5V12.25C8.75 12.7332 8.35825 13.125 7.875 13.125C7.39175 13.125 7 12.7332 7 12.25V3.5C7 3.01675 7.39175 2.625 7.875 2.625Z"
-              fill="#EBEBEB"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M14.875 20.125C14.875 19.6418 15.2668 19.25 15.75 19.25H24.5C24.9832 19.25 25.375 19.6418 25.375 20.125C25.375 20.6082 24.9832 21 24.5 21H15.75C15.2668 21 14.875 20.6082 14.875 20.125Z"
-              fill="#EBEBEB"
-            />
-          </svg>
-        </button>
-        <button onclick="adicionarNumero(0)">0</button>
-        <button>,</button>
-        <button onclick="calculo()" class="button-igual">
-          <strong>=</strong>
-        </button>
+        <div class="conteudo-scroll">
+        <div class="meta">
+          <span id="metaDesafio"></span>
+          <span id="statsDesafio"></span>
+        </div>
+
+        <details class="mapa-perguntas" id="mapaPerguntas">
+          <summary>Ver mapa das 50 perguntas</summary>
+          <div class="mapa-grid" id="navDesafios"></div>
+        </details>
+        <div class="desafio-nav" id="navDesafiosLegacy" style="display:none"></div>
+
+        <div class="topo-desafio">
+          <span class="badge" id="badgeNivel"></span>
+          <h2 id="tituloDesafio"></h2>
+          <div class="refs-forum" id="refsForum"></div>
+        </div>
+
+        <div class="layout-estudo">
+          <section class="secao" id="secaoConceito">
+            <div class="secao-titulo teoria" id="labelConceito">Entenda antes</div>
+            <div id="chipRevisao"></div>
+            <div class="conceito-box" id="aprenderDesafio"></div>
+            <details class="bloco-detalhes">
+              <summary>Mais detalhes</summary>
+              <div class="explica-desafio" id="explicaDesafio"></div>
+            </details>
+          </section>
+
+          <div class="quiz-mimo quiz-area" id="quizDesafio" style="display: none"></div>
+
+          <section class="secao secao-pratica" id="secaoPratica">
+            <div class="secao-titulo pratica">Sua missão</div>
+            <div id="missaoDesafio" class="missao-box"></div>
+            <div class="editor-wrap">
+              <div class="editor-cabecalho">
+                <label for="editor">Código</label>
+                <span id="editorHint"></span>
+              </div>
+              <textarea id="editor" spellcheck="false"></textarea>
+            </div>
+            <div class="preview-wrap compact">
+              <label>Resultado na tela</label>
+              <iframe id="previewFrame" class="preview-frame" title="Preview React" sandbox="allow-scripts allow-same-origin"></iframe>
+              <div class="preview-erro" id="previewErro"></div>
+              <p class="preview-ok" id="previewOk" style="display:none">Preview ok.</p>
+            </div>
+          </section>
+
+          <div class="acoes-sticky">
+            <div class="acoes-principais">
+              <button type="button" class="btn" id="btnPreview">Preview</button>
+              <button type="button" class="btn" id="btnVerificar">Verificar</button>
+              <button type="button" class="btn sec" id="btnDica">Dica</button>
+              <button type="button" class="btn ghost" id="btnSolucao">Solução</button>
+              <button type="button" class="btn" id="btnProximo" style="display: none">Próximo</button>
+            </div>
+            <div class="porque-box" id="porqueBox"></div>
+            <div class="feedback" id="feedback"></div>
+            <details class="bloco-detalhes" id="solucaoDetails" style="display:none">
+              <summary>Ver solução (só se travar)</summary>
+              <div class="solucao-box vis" id="solucaoBox"><pre id="solucaoPre"></pre></div>
+            </details>
+          </div>
+
+          <details class="bloco-opcional" id="duvidaDetails">
+            <summary>Ajuda com esta pergunta</summary>
+            <div class="interno">
+              <div class="duvida-wrap">
+                <textarea id="inputDuvida" placeholder="Ex: não entendi por que preciso de useState aqui..."></textarea>
+                <p class="tutor-status" id="tutorStatus"></p>
+                <div class="duvida-botoes">
+                  <button type="button" class="btn sec" id="btnExplicar">Dica rápida</button>
+                  <button type="button" class="btn ghost" id="btnCopiarCursor">Copiar pro Cursor (PC)</button>
+                </div>
+                <div class="duvida-resposta" id="duvidaResposta"></div>
+              </div>
+            </div>
+          </details>
+
+          <details class="bloco-opcional">
+            <summary>Opções</summary>
+            <div class="interno">
+              <button type="button" class="btn perigo" id="btnZerar">Começar do zero</button>
+              <p class="tutor-status" id="tutorSetup" style="margin-top:10px"></p>
+            </div>
+          </details>
+        </div>
+        </div>
+      </div>
+
+      <!-- FÓRUM -->
+      <div class="painel" id="painelForum">
+        <div class="conteudo-scroll" style="padding-top:16px">
+        <input type="search" class="forum-busca" id="buscaForum" placeholder="Buscar: useState, map, JSX, calculadora..." />
+        <div class="forum-tags" id="tagsForum"></div>
+        <div class="forum-lista" id="listaForum"></div>
+        </div>
       </div>
     </div>
-  </body>
 
-  <script>
-    function adicionarNumero(data) {
-      document.getElementById("input").value += data;
-    }
-    function limpar() {
-      document.getElementById("input").value = "";
-    }
-    function apagarUltimo() {
-      document.getElementById("input").value = document
-        .getElementById("input")
-        .value.slice(0, -1);
-    }
-    function calculo() {
-      const input = document.getElementById("input");
+    <nav class="tab-bar" aria-label="Navegação">
+      <button type="button" class="ativo" id="btnDesafiosTab">Perguntas</button>
+      <button type="button" id="btnForumTab">Fórum</button>
+    </nav>
 
-      try {
-        const resultado = eval(input.value);
-        input.value = resultado;
-      } catch (error) {
-        input.value = "Invalido";
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="perguntas-data.js"></script>
+    <script>
+      const forum = [
+        {
+          id: "useState",
+          tags: ["hook", "básico"],
+          titulo: "useState — Referência completa",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>useState</code> é o hook mais usado do React. Ele guarda um valor que pode mudar com o tempo e, quando muda, o React redesenha o componente na tela.</div>
+
+            <h4>📌 O que é?</h4>
+            <p>Função do React: <code>React.useState(valorInicial)</code>. Retorna sempre um array com exatamente 2 posições.</p>
+
+            <h4>📖 Sintaxe</h4>
+            <pre>const [contador, setContador] = React.useState(0);</pre>
+
+            <table class="doc-tabela">
+              <tr><th>Parte</th><th>Tipo</th><th>Função</th></tr>
+              <tr><td><code>contador</code></td><td>qualquer</td><td>Valor atual. Você LÊ na tela e na lógica. Não altere direto.</td></tr>
+              <tr><td><code>setContador</code></td><td>função</td><td>Única forma correta de MUDAR o valor. React agenda re-render.</td></tr>
+              <tr><td><code>0</code></td><td>inicial</td><td>Só usado na 1ª vez que o componente aparece. Depois ignorado.</td></tr>
+            </table>
+
+            <h4>🎯 Tipos de valor inicial</h4>
+            <pre>useState(0)        // número
+useState("")       // texto
+useState([])       // array vazio — listas/histórico
+useState(false)    // boolean — ligar/desligar
+useState({ a: 1 }) // objeto</pre>
+
+            <h4>⚙️ O que acontece por baixo (fluxo)</h4>
+            <ol>
+              <li>Componente renderiza → contador vale 0</li>
+              <li>Usuário clica → setContador(5) é chamado</li>
+              <li>React guarda "próximo valor = 5" e marca componente para re-render</li>
+              <li>Componente roda de novo → contador agora é 5 → JSX mostra 5</li>
+            </ol>
+
+            <div class="erro-comum">❌ contador++ ou contador = 5 — React não sabe que mudou.<br>✅ setContador(contador + 1) ou setContador(5)</div>
+          `,
+        },
+        {
+          id: "setContador",
+          tags: ["hook", "básico"],
+          titulo: "setContador — a função que atualiza",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>setContador</code> não muda o número na hora na linha de baixo. Ela <em>pede</em> pro React atualizar. Na próxima renderização, <code>contador</code> vem novo.</div>
+            <h4>Duas formas de usar</h4>
+            <pre>setContador(5);                    // valor fixo
+setContador(contador + 1);         // lê contador AGORA
+setContador((prev) => prev + 1);   // React passa o mais recente</pre>
+            <p>Um clique com uma chamada: as duas formas de somar 1 funcionam igual.</p>
+            <p>Várias chamadas no <strong>mesmo</strong> clique: use <code>(prev) => prev + 1</code>.</p>
+          `,
+        },
+        {
+          id: "jsx-chaves",
+          tags: ["jsx", "básico"],
+          titulo: "Chaves { } no JSX — mostrar variável",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> JSX parece HTML, mas dentro de <code>{ }</code> é JavaScript puro.</div>
+            <pre>&lt;p&gt;Contador: {contador}&lt;/p&gt;
+&lt;p&gt;Dobro: {contador * 2}&lt;/p&gt;</pre>
+            <p>Sem <code>{contador}</code>, o usuário não vê o número — mesmo que o useState exista.</p>
+            <div class="erro-comum">❌ <code>&lt;p&gt;contador&lt;/p&gt;</code> — mostra a palavra "contador", não o número.<br>❌ <code>{contador = 0}</code> — isso é atribuição, não leitura.</div>
+          `,
+        },
+        {
+          id: "onClick",
+          tags: ["evento", "básico"],
+          titulo: "onClick — quando clica no botão",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>onClick</code> recebe uma <strong>função</strong>. Quando o usuário clica, essa função roda.</div>
+            <pre>&lt;button onClick={() => setContador(contador + 1)}&gt;
+  adicionar
+&lt;/button&gt;</pre>
+            <ul>
+              <li><code>onClick=</code> — prop de evento (C maiúsculo no React)</li>
+              <li><code>{ ... }</code> — dentro vai JavaScript</li>
+              <li><code>() => ...</code> — arrow function (função sem nome)</li>
+            </ul>
+            <div class="erro-comum">❌ <code>onClick={setContador(contador+1)}</code> — roda NA HORA do render, não no clique!<br>✅ <code>onClick={() => setContador(...)}</code></div>
+          `,
+        },
+        {
+          id: "arrow",
+          tags: ["javascript", "básico"],
+          titulo: "() => — arrow function (função seta)",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> é só uma forma curta de escrever função. No React você usa MUITO dentro de onClick.</div>
+            <pre>// Mesma ideia:
+function somar() { return contador + 1; }
+const somar = () => contador + 1;
+
+// No botão — precisa ser função, não resultado:
+onClick={() => setContador(contador + 1)}</pre>
+            <p>Os parênteses <code>()</code> = "sem argumentos". A seta <code>=&gt;</code> = "retorna / executa".</p>
+          `,
+        },
+        {
+          id: "prev",
+          tags: ["hook", "médio"],
+          titulo: "(prev) => — Atualização funcional do state",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> quando você passa uma <strong>função</strong> pro setState em vez de um valor direto, o React chama essa função e passa o state mais recente como argumento.</div>
+
+            <h4>📌 Sintaxe</h4>
+            <pre>setContador((prev) => prev + 1);</pre>
+            <p><code>prev</code> = nome que você escolhe. Pode ser <code>c</code>, <code>atual</code>, <code>h</code> (no historico).</p>
+
+            <h4>🎯 Quando usar?</h4>
+            <ul>
+              <li>Novo valor depende do anterior</li>
+              <li>Várias chamadas setState seguidas no mesmo evento</li>
+              <li>Dentro de setContador quando também chama setHistorico (desafio 7)</li>
+            </ul>
+
+            <h4>🧪 Comparação visual</h4>
+            <pre>// Forma direta — lê contador da renderização atual
+setContador(contador + 1);
+
+// Forma funcional — React passa o valor atualizado
+setContador((prev) => prev + 1);</pre>
+
+            <h4>Desafio 7 — por que prev no setContador?</h4>
+            <pre>setContador((prev) => {
+  const novo = prev + 1;
+  setHistorico((h) => [...h, novo]);
+  return novo;
+});</pre>
+            <p>Aqui <code>prev</code> é o contador antes do clique. Você calcula <code>novo</code>, salva no histórico, e <code>return novo</code> diz pro React qual será o próximo contador.</p>
+          `,
+        },
+        {
+          id: "spread-array",
+          tags: ["javascript", "médio"],
+          titulo: "[...array, item] — Spread Operator em arrays",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> você já viu <code>...</code> em props. Em array, o nome oficial é <strong>spread operator</strong> (operador de espalhamento). Ele <em>copia</em> cada item de um array para dentro de outro array novo.</div>
+
+            <h4>📌 O que é?</h4>
+            <p>Sintaxe JavaScript: <code>...</code> antes de um array. Significa: "pega todos os elementos desse array e coloca aqui, um por um".</p>
+
+            <h4>🎯 Para que serve no React?</h4>
+            <p>Quando você guarda uma <strong>lista</strong> no <code>useState</code> (histórico, tarefas, mensagens), o React só atualiza a tela se você passar um <strong>array novo</strong>. O spread monta esse array novo copiando o antigo + adicionando item.</p>
+
+            <h4>📖 Sintaxe</h4>
+            <pre>const antigo = [10, 20, 30];
+const novo = [...antigo, 40];
+// novo = [10, 20, 30, 40]
+// antigo continua [10, 20, 30] — não mudou!</pre>
+
+            <h4>🔍 Linha por linha — setHistorico</h4>
+            <pre>setHistorico((prev) => [...prev, 5]);</pre>
+            <table class="doc-tabela">
+              <tr><th>Parte</th><th>O que faz</th></tr>
+              <tr><td><code>setHistorico</code></td><td>Função que o React te deu quando você fez useState([]). É ela que pede pra atualizar o histórico.</td></tr>
+              <tr><td><code>(prev) =></code></td><td>Forma funcional: React te entrega o array <strong>atual</strong> na variável prev (pode chamar de h, lista, etc).</td></tr>
+              <tr><td><code>[...prev,</code></td><td>Cria array NOVO. Copia cada item que já estava em prev.</td></tr>
+              <tr><td><code>5]</code></td><td>Coloca o número 5 no final do array novo.</td></tr>
+            </table>
+
+            <h4>🧪 Exemplo completo — antes e depois</h4>
+            <pre>// Estado inicial
+historico = []
+
+// Usuário clica adicionar, contador vai pra 1
+setHistorico(prev => [...prev, 1])
+// historico vira [1]
+
+// Clica de novo, contador vai pra 2
+setHistorico(prev => [...prev, 2])
+// prev era [1] → novo array [1, 2]</pre>
+
+            <h4>❌ Por que NÃO usar .push()?</h4>
+            <pre>historico.push(5);      // muta o MESMO array na memória
+setHistorico(historico); // React compara: "é o mesmo objeto?" → pode ignorar</pre>
+            <div class="erro-comum">push altera o array original. React muitas vezes não re-renderiza porque a referência não mudou. Spread cria referência nova → React vê mudança → atualiza tela.</div>
+
+            <h4>✅ Quando usar</h4>
+            <ul>
+              <li>Adicionar item no final da lista</li>
+              <li>Copiar lista e mudar algo (com filter/map antes ou depois)</li>
+              <li>Qualquer atualização de array em useState</li>
+            </ul>
+          `,
+        },
+        {
+          id: "spread-obj",
+          tags: ["javascript", "médio"],
+          titulo: "{ ...obj, chave: valor } — spread em objeto",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> mesma ideia do array, mas com chaves de objeto.</div>
+            <pre>const user = { nome: "Ana", idade: 20 };
+setUser({ ...user, nome: "Bia" });
+// { nome: "Bia", idade: 20 } — objeto NOVO</pre>
+            <p>Copia tudo e troca só o que você passou depois do spread.</p>
+          `,
+        },
+        {
+          id: "array-lista",
+          tags: ["básico", "javascript"],
+          titulo: "[] map key — resumo rápido (estilo Mimo)",
+          corpo: `
+            <p><strong>[]</strong> = lista. Vazia: <code>[]</code>. Com itens: <code>[1, 2, 3]</code>.</p>
+            <p><strong>.length</strong> = quantos itens. <strong>.join(", ")</strong> = vira texto "1, 2, 3".</p>
+            <p><strong>.map</strong> = cada item vira um &lt;li&gt; na tela.</p>
+            <p><strong>key={i}</strong> = crachá pro React (i = 0, 1, 2...).</p>
+            <pre>{historico.map((n, i) => &lt;li key={i}&gt;{n}&lt;/li&gt;)}</pre>
+          `,
+        },
+        {
+          id: "map",
+          tags: ["javascript", "médio"],
+          titulo: ".map() — Referência completa",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>map</code> é método de array do JavaScript. No React você usa pra transformar cada item da lista em um pedaço de tela (JSX).</div>
+
+            <h4>📌 O que é?</h4>
+            <p><code>array.map(callback)</code> — percorre o array do início ao fim, executa a função em cada item, e devolve um <strong>novo array</strong> com os retornos.</p>
+
+            <h4>📖 Sintaxe</h4>
+            <pre>historico.map((item, indice) => {
+  return &lt;li key={indice}&gt;{item}&lt;/li&gt;;
+})
+
+// Forma curta (uma linha):
+historico.map((item, i) => &lt;li key={i}&gt;{item}&lt;/li&gt;)</pre>
+
+            <table class="doc-tabela">
+              <tr><th>Parâmetro</th><th>Significado</th></tr>
+              <tr><td><code>item</code> (1º)</td><td>O valor atual: 1, depois 2, depois 3...</td></tr>
+              <tr><td><code>indice</code> (2º)</td><td>Posição: 0, 1, 2... (opcional mas útil pro key)</td></tr>
+              <tr><td>retorno</td><td>O que você return vira um item do array novo (no React: elemento JSX)</td></tr>
+            </table>
+
+            <h4>🧪 Exemplo — historico = [1, 2, 3]</h4>
+            <pre>historico.map((n, i) => &lt;li key={i}&gt;Valor: {n}&lt;/li&gt;)
+
+// React recebe equivalente a:
+// [&lt;li key=0&gt;Valor: 1&lt;/li&gt;, &lt;li key=1&gt;Valor: 2&lt;/li&gt;, ...]
+// E desenha os três &lt;li&gt; na tela</pre>
+
+            <h4>🔑 Por que key={i}?</h4>
+            <p>React precisa identificar cada linha da lista. Quando a lista muda, ele sabe qual item atualizar. Em projetos reais use id único; em estudo, <code>key={i}</code> serve.</p>
+
+            <h4>map vs forEach</h4>
+            <p><code>forEach</code> só executa — não retorna array novo. <code>map</code> retorna — por isso funciona dentro do JSX com <code>{ }</code>.</p>
+          `,
+        },
+        {
+          id: "filter",
+          tags: ["javascript", "avançado"],
+          titulo: ".filter() — remover itens da lista",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> filter mantém só o que passar no teste. Devolve array <strong>novo</strong> menor.</div>
+            <pre>setItens((prev) => prev.filter((item) => item !== valorRemover));
+setItens((prev) => prev.filter((_, i) => i !== 1));</pre>
+            <p><code>_</code> = "não vou usar esse parâmetro" (o item, só quero o índice).</p>
+          `,
+        },
+        {
+          id: "boolean-state",
+          tags: ["hook", "médio"],
+          titulo: "useState(true/false) — ligar/desligar",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> state não é só número. Boolean guarda coisa tipo "histórico visível?" ou "modo escuro?".</div>
+            <pre>const [mostrar, setMostrar] = React.useState(true);
+
+setMostrar((m) => !m);  // inverte: true→false, false→true
+
+{mostrar && &lt;ul&gt;...&lt;/ul&gt;}</pre>
+            <p><code>&&</code> no JSX: se <code>mostrar</code> for true, renderiza o que vem depois. Se false, não renderiza nada.</p>
+          `,
+        },
+        {
+          id: "props",
+          tags: ["react", "médio"],
+          titulo: "Props — dados que vêm de fora",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> props = o pai passa pro filho. State = memória <strong>dentro</strong> do componente.</div>
+            <pre>function Contador({ passo = 1 }) {
+  const [n, setN] = React.useState(0);
+  // passo veio de fora — você lê, não altera direto
+}
+
+&lt;Contador passo={5} /&gt;</pre>
+            <p><code>passo = 1</code> na desestruturação = valor padrão se o pai não passar.</p>
+          `,
+        },
+        {
+          id: "math-max",
+          tags: ["javascript", "básico"],
+          titulo: "Math.max(0, x) — não deixar negativo",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> <code>Math.max(a, b)</code> devolve o maior dos dois.</div>
+            <pre>Math.max(0, contador - 1)  // se der -1, fica 0
+Math.max(1, passo - 1)     // passo mínimo 1</pre>
+          `,
+        },
+        {
+          id: "componente",
+          tags: ["react", "básico"],
+          titulo: "Componente — function que retorna JSX",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> teu <code>Contador</code> é um componente: função com nome maiúsculo que retorna HTML-like (JSX).</div>
+            <pre>function Contador() {
+  return &lt;div&gt;...&lt;/div&gt;;
+}
+
+function App() {
+  return (
+    &lt;main&gt;
+      &lt;Contador /&gt;
+    &lt;/main&gt;
+  );
+}</pre>
+            <p><code>&lt;Contador /&gt;</code> = "usa o componente Contador aqui".</p>
+          `,
+        },
+        {
+          id: "regras-hooks",
+          tags: ["hook", "avançado"],
+          titulo: "Regras dos Hooks",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> três regras simples — quebra uma delas e o app buga estranho.</div>
+            <ol>
+              <li>Só chame hooks no <strong>topo</strong> do componente (nunca dentro de if/for)</li>
+              <li>Só em <strong>componentes React</strong> ou hooks customizados (useAlgo)</li>
+              <li>Sempre na <strong>mesma ordem</strong> a cada render</li>
+            </ol>
+            <p>Valor inicial <code>useState(inicial)</code> só vale na <strong>primeira montagem</strong> — prop que muda depois não atualiza o state sozinha.</p>
+          `,
+        },
+        {
+          id: "react-geral",
+          tags: ["react", "básico"],
+          titulo: "O que é React? — visão geral",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> React monta telas em <strong>componentes</strong> reutilizáveis.</div>
+            <p>Seus arquivos de estudo: <code>contador.html</code>, <code>modelo.html</code> (calculadora) e este app.</p>
+            <ol><li>React + ReactDOM + Babel no HTML</li><li>Componentes em script type="text/babel"</li><li>createRoot().render(&lt;App /&gt;)</li></ol>
+          `,
+        },
+        {
+          id: "jsx",
+          tags: ["jsx", "básico"],
+          titulo: "JSX — HTML dentro do JavaScript",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> JSX parece HTML mas é JS. Use <code>className</code>, feche tags, <code>{ }</code> para variáveis.</div>
+            <pre>return (&lt;div&gt;&lt;p&gt;{contador}&lt;/p&gt;&lt;/div&gt;);</pre>
+          `,
+        },
+        {
+          id: "createRoot",
+          tags: ["react", "básico"],
+          titulo: "createRoot — ligar React ao HTML",
+          corpo: `
+            <pre>&lt;div id="root"&gt;&lt;/div&gt;
+ReactDOM.createRoot(document.getElementById("root")).render(&lt;App /&gt;);</pre>
+          `,
+        },
+        {
+          id: "eventos",
+          tags: ["evento", "básico"],
+          titulo: "Eventos — onClick, onChange",
+          corpo: `
+            <p>CamelCase: <code>onClick</code>. Sempre passe função: <code>onClick={() => ...}</code></p>
+          `,
+        },
+        {
+          id: "ternario",
+          tags: ["jsx", "médio"],
+          titulo: "Ternário ? : e && no JSX",
+          corpo: `
+            <pre>{x ? "sim" : "não"}
+{mostrar && &lt;ul&gt;...&lt;/ul&gt;}</pre>
+          `,
+        },
+        {
+          id: "join",
+          tags: ["javascript", "básico"],
+          titulo: ".join() — lista vira texto",
+          corpo: `<pre>[1,2,3].join(", ") → "1, 2, 3"</pre>`,
+        },
+        {
+          id: "calculadora",
+          tags: ["react", "avançado"],
+          titulo: "Calculadora (modelo.html)",
+          corpo: `
+            <div class="paulo"><strong>Paulo,</strong> Button, Card, Text + map duplo na grade de botões.</div>
+            <pre>buttons.map((row,i)=&gt;&lt;div key={i}&gt;{row.map(btn=&gt;&lt;Button key={btn.input} ...&gt;)}&lt;/div&gt;)</pre>
+            <p>State: <code>operacao</code> e <code>result</code> como strings.</p>
+          `,
+        },
+        {
+          id: "children",
+          tags: ["react", "médio"],
+          titulo: "children — conteúdo dentro do componente",
+          corpo: `<pre>function Card({ children }) { return &lt;div&gt;{children}&lt;/div&gt;; }</pre>`,
+        },
+        {
+          id: "desestruturacao",
+          tags: ["javascript", "básico"],
+          titulo: "Desestruturação nas props",
+          corpo: `<pre>function Contador({ passo = 1 }) { ... }</pre>`,
+        },
+      ];
+
+      const STORAGE_V1 = "react-estudos-progresso-v1";
+      const STORAGE_V2 = "react-estudos-progresso-v2";
+      const STORAGE_V3 = "react-estudos-progresso-v3";
+      const STORAGE_KEY = "react-estudos-progresso-v4";
+      const STORAGE_DUVIDAS = "react-estudos-duvidas-v1";
+      let tutorOnline = false;
+      let tutorTemChave = false;
+
+      function tutorApiUrl(path) {
+        const h = location.hostname;
+        if (h === "localhost" || h === "127.0.0.1") {
+          return "http://127.0.0.1:3847" + path;
+        }
+        return "/api" + path;
       }
-    }
-  </script>
+
+      function tutorModoLocal() {
+        const h = location.hostname;
+        return h === "localhost" || h === "127.0.0.1";
+      }
+
+      function irParaDesafio(i) {
+        if (i < 0 || i >= desafios.length) return;
+        salvarProgresso();
+        desafioIdx = i;
+        carregarDesafio();
+        resetFeedback();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function migrarIndiceDesafio(i) {
+        return i >= 7 ? i + 4 : i;
+      }
+
+      function migrarDeV1(d) {
+        const codigosSalvosNovo = {};
+        Object.entries(d.codigosSalvos || {}).forEach(([k, v]) => {
+          const ki = Number(k);
+          if (!Number.isNaN(ki)) codigosSalvosNovo[migrarIndiceDesafio(ki)] = v;
+        });
+        return {
+          desafioIdx: migrarIndiceDesafio(d.desafioIdx ?? 0),
+          concluidos: (d.concluidos || []).map(migrarIndiceDesafio),
+          codigosSalvos: codigosSalvosNovo,
+          painelAtivo: d.painelAtivo,
+        };
+      }
+
+      /** +2 desafios intro/completar no início (v2 → v3) */
+      function migrarDeV2Intro(d) {
+        const shift = (i) => i + 2;
+        const codigosSalvosNovo = {};
+        Object.entries(d.codigosSalvos || {}).forEach(([k, v]) => {
+          const ki = Number(k);
+          if (!Number.isNaN(ki)) codigosSalvosNovo[shift(ki)] = v;
+        });
+        return {
+          desafioIdx: shift(d.desafioIdx ?? 0),
+          concluidos: (d.concluidos || []).map(shift),
+          codigosSalvos: codigosSalvosNovo,
+          painelAtivo: d.painelAtivo,
+        };
+      }
+
+      let desafioIdx = 0;
+      const concluidos = new Set();
+      let tagAtiva = "todas";
+      let codigosSalvos = {};
+      let painelAtivo = "desafios";
+      let quizAcertos = {};
+
+      function salvarProgresso() {
+        const d = desafios[desafioIdx];
+        const modo = d?.modo || "escrever";
+        codigosSalvos[desafioIdx] =
+          modo === "intro" ? d.codigo : editor.value;
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            desafioIdx,
+            concluidos: [...concluidos],
+            codigosSalvos,
+            painelAtivo,
+          })
+        );
+      }
+
+      function aplicarProgresso(d) {
+        if (typeof d.desafioIdx === "number" && d.desafioIdx >= 0 && d.desafioIdx < desafios.length) {
+          desafioIdx = d.desafioIdx;
+        }
+        if (Array.isArray(d.concluidos)) {
+          d.concluidos.forEach((i) => concluidos.add(i));
+        }
+        if (d.codigosSalvos && typeof d.codigosSalvos === "object") {
+          codigosSalvos = d.codigosSalvos;
+        }
+        if (d.painelAtivo === "forum" || d.painelAtivo === "desafios") {
+          painelAtivo = d.painelAtivo;
+        }
+      }
+
+      function migrarParaV4(d) {
+        const max = desafios.length - 1;
+        const idx = Math.min(Math.max(0, d.desafioIdx ?? 0), max);
+        const concl = (d.concluidos || []).filter((i) => i >= 0 && i <= max);
+        const codigos = {};
+        Object.entries(d.codigosSalvos || {}).forEach(([k, v]) => {
+          const ki = Number(k);
+          if (!Number.isNaN(ki) && ki <= max) codigos[ki] = v;
+        });
+        return { desafioIdx: idx, concluidos: concl, codigosSalvos: codigos, painelAtivo: d.painelAtivo };
+      }
+
+      function carregarProgresso() {
+        try {
+          let dados = null;
+          const rawV4 = localStorage.getItem(STORAGE_KEY);
+          if (rawV4) dados = JSON.parse(rawV4);
+          else {
+            const rawV3 = localStorage.getItem(STORAGE_V3);
+            if (rawV3) dados = migrarParaV4(JSON.parse(rawV3));
+            else {
+              const rawV2 = localStorage.getItem(STORAGE_V2);
+              if (rawV2) dados = migrarParaV4(migrarDeV2Intro(JSON.parse(rawV2)));
+              else {
+                const rawV1 = localStorage.getItem(STORAGE_V1);
+                if (rawV1) dados = migrarParaV4(migrarDeV2Intro(migrarDeV1(JSON.parse(rawV1))));
+              }
+            }
+          }
+          if (!dados) return;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+          aplicarProgresso(dados);
+        } catch (_) {}
+      }
+
+      let saveTimer;
+      function salvarProgressoDebounced() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(salvarProgresso, 400);
+      }
+
+      const editor = document.getElementById("editor");
+      const feedback = document.getElementById("feedback");
+      const solucaoBox = document.getElementById("solucaoBox");
+      const solucaoPre = document.getElementById("solucaoPre");
+      const btnProximo = document.getElementById("btnProximo");
+      const previewFrame = document.getElementById("previewFrame");
+      const previewErro = document.getElementById("previewErro");
+      const previewOk = document.getElementById("previewOk");
+      const inputDuvida = document.getElementById("inputDuvida");
+      const duvidaResposta = document.getElementById("duvidaResposta");
+
+      let duvidasSalvas = {};
+
+      function carregarDuvidas() {
+        try {
+          const raw = localStorage.getItem(STORAGE_DUVIDAS);
+          if (raw) duvidasSalvas = JSON.parse(raw);
+        } catch (_) {
+          duvidasSalvas = {};
+        }
+      }
+
+      function salvarDuvidas() {
+        localStorage.setItem(STORAGE_DUVIDAS, JSON.stringify(duvidasSalvas));
+      }
+
+      function restaurarDuvidaDoDesafio() {
+        const d = duvidasSalvas[desafioIdx];
+        inputDuvida.value = d?.pergunta || "";
+        if (d?.respostaHtml) {
+          duvidaResposta.innerHTML = d.respostaHtml;
+          duvidaResposta.classList.add("vis");
+        } else {
+          duvidaResposta.innerHTML = "";
+          duvidaResposta.classList.remove("vis");
+        }
+      }
+
+      function comecarDoZero() {
+        const ok = confirm(
+          "Zerar TUDO?\n\n• Volta ao desafio 1\n• Apaga desafios concluídos\n• Apaga código salvo no editor\n• Apaga dúvidas salvas"
+        );
+        if (!ok) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_V3);
+        localStorage.removeItem(STORAGE_V2);
+        localStorage.removeItem(STORAGE_V1);
+        localStorage.removeItem(STORAGE_DUVIDAS);
+        desafioIdx = 0;
+        concluidos.clear();
+        codigosSalvos = {};
+        duvidasSalvas = {};
+        painelAtivo = "desafios";
+        salvarProgresso();
+        resetFeedback();
+        carregarDesafio();
+        feedback.style.display = "block";
+        feedback.className = "feedback ok";
+        feedback.innerHTML =
+          "<strong>↺ Progresso zerado.</strong> Começa de novo no desafio 1. Boa!";
+      }
+
+      function montarContextoDuvida() {
+        const d = desafios[desafioIdx];
+        const codigo = editor.value.trim();
+        const trecho =
+          codigo.length > 900 ? codigo.slice(0, 900) + "\n// ... (código cortado)" : codigo;
+        return {
+          desafioNum: desafioIdx + 1,
+          titulo: d.titulo,
+          passos: d.passos.join(" | "),
+          dica: d.dica,
+          codigo: trecho,
+          pergunta: inputDuvida.value.trim(),
+        };
+      }
+
+      function pedeRespostaCompleta(pergunta) {
+        const p = pergunta.toLowerCase();
+        return /solu[cç][aã]o|resposta completa|me d[aá] o c[oó]digo|c[oó]digo certo|cola pra mim|gabarito/.test(p);
+      }
+
+      function responderDuvidaLocal(ctx) {
+        const p = ctx.pergunta.toLowerCase();
+        const listaVar = /\b(historico|lista|items)\b/i.test(ctx.codigo)
+          ? "historico"
+          : "minhaLista";
+
+        if (pedeRespostaCompleta(ctx.pergunta)) {
+          return {
+            titulo: "Sem spoiler 🙂",
+            html: `<p>Não vou colar a <strong>solução do desafio</strong> aqui — senão não treina.</p>
+              <p>Posso explicar <code>map</code>, <code>key</code>, <code>[]</code> com exemplo parecido com o seu código.</p>
+              <p>Reformula? Ex: <em>"o que o map faria no meu historico?"</em></p>`,
+          };
+        }
+
+        if (/map|\.map/.test(p)) {
+          return {
+            titulo: "O que map faz (no seu caso)",
+            html: `<p><strong>map</strong> = para cada item do array, você devolve um pedaço de tela (um <code>&lt;li&gt;</code>).</p>
+              <p>Se <code>${listaVar} = [1, 2, 3]</code>, o map cria <strong>3 linhas</strong> — uma por número.</p>
+              <pre>&lt;ul&gt;
+  {${listaVar}.map((n, i) =&gt; (
+    &lt;li key={i}&gt;{n}&lt;/li&gt;
+  ))}
+&lt;/ul&gt;</pre>
+              <p><code>n</code> = o valor (1, 2, 3…). <code>i</code> = posição (0, 1, 2…) — usado no <code>key</code>.</p>
+              <p class="aviso">Isso é um <em>exemplo</em>. No desafio você encaixa no JSX que já tem — sem copiar a solução inteira.</p>`,
+          };
+        }
+
+        if (/key|crach[aã]/.test(p)) {
+          return {
+            titulo: "Para que serve key={i}",
+            html: `<p>Quando há vários <code>&lt;li&gt;</code>, o React precisa de um <strong>id</strong> em cada um.</p>
+              <pre>&lt;li key={i}&gt;{n}&lt;/li&gt;</pre>
+              <p><code>i</code> vem do map: <code>.map((n, i) =&gt; ...)</code> — segundo nome é o índice.</p>
+              <p class="aviso">Não é decoração: evita bug quando a lista muda.</p>`,
+          };
+        }
+
+        if (/\[\]|array|lista vazia|colchete/.test(p)) {
+          return {
+            titulo: "[] — array (lista)",
+            html: `<p><code>[]</code> = lista vazia (0 itens).</p>
+              <p><code>[1, 2, 3]</code> = lista com 3 números.</p>
+              <pre>const [${listaVar}, set${listaVar.charAt(0).toUpperCase() + listaVar.slice(1)}] = React.useState([]);</pre>
+              <p><code>.length</code> = quantos itens. <code>.join(", ")</code> = texto "1, 2, 3".</p>`,
+          };
+        }
+
+        if (/spread|\.\.\./.test(p)) {
+          return {
+            titulo: "Spread [...h, novo]",
+            html: `<p>Copia a lista antiga e coloca um item no <strong>final</strong>:</p>
+              <pre>setHistorico((h) =&gt; [...h, novo]);</pre>
+              <p><code>h</code> = lista atual. <code>novo</code> = número que você acabou de calcular.</p>
+              <p class="aviso">Não use <code>push</code> no state — React pode não atualizar a tela.</p>`,
+          };
+        }
+
+        if (/usestate|state/.test(p)) {
+          return {
+            titulo: "useState em 1 frase",
+            html: `<p>Memória do componente: <code>const [valor, setValor] = React.useState(0);</code></p>
+              <p>Lê <code>{valor}</code> no JSX. Muda com <code>setValor(...)</code> no clique.</p>`,
+          };
+        }
+
+        if (/onclick|clique|bot[aã]o/.test(p)) {
+          return {
+            titulo: "onClick",
+            html: `<p>O botão precisa de uma <strong>função</strong>:</p>
+              <pre>&lt;button onClick={adicionar}&gt;adicionar&lt;/button&gt;</pre>
+              <p>ou <code>onClick={() =&gt; setContador(...)}</code> — não pode ser <code>onClick={adicionar setHistorico(...)}</code> junto.</p>`,
+          };
+        }
+
+        if (/prev|funcional/.test(p)) {
+          return {
+            titulo: "Forma (prev) =>",
+            html: `<p><code>setContador((prev) =&gt; prev + 1)</code> — <code>prev</code> é o valor <em>antes</em> de atualizar.</p>
+              <p>Útil quando chama <code>setContador</code> mais de uma vez no mesmo clique.</p>`,
+          };
+        }
+
+        if (/join/.test(p)) {
+          return {
+            titulo: "join — ver lista sem map",
+            html: `<pre>&lt;p&gt;{historico.join(", ")}&lt;/p&gt;</pre>
+              <p>Mostra: <strong>1, 2, 3</strong> numa linha só. O map vem depois, pra virar &lt;li&gt;.</p>`,
+          };
+        }
+
+        if (/length/.test(p)) {
+          return {
+            titulo: "length — contar itens",
+            html: `<pre>&lt;p&gt;Itens: {historico.length}&lt;/p&gt;</pre>
+              <p><code>[1,2,3].length</code> → 3. Lista vazia <code>[].length</code> → 0.</p>`,
+          };
+        }
+
+        if (/jsx|\{ \}|chav/.test(p)) {
+          return {
+            titulo: "Chaves { } no JSX",
+            html: `<p>Dentro do HTML do React, <code>{ }</code> = "agora é JavaScript".</p>
+              <pre>&lt;p&gt;{contador}&lt;/p&gt;
+&lt;ul&gt;{historico.map(...)}&lt;/ul&gt;</pre>`,
+          };
+        }
+
+        return {
+          titulo: "Me diz com outras palavras",
+          html: `<p>Escreve o que não entendeu (ex: “não sei o que é useState”).</p>
+              <p>Ou use uma palavra: <strong>useState, map, key, onClick, []</strong>.</p>
+              <p class="aviso">Leia o bloco <strong>① Aprender</strong> em cima — é a explicação principal.</p>`,
+        };
+      }
+
+      function mostrarRespostaDuvida(titulo, html, fonte) {
+        const bloco = `<h5>${escapeHtml(titulo)} <span style="color:#6b7280;font-weight:400">· ${fonte}</span></h5>${html}`;
+        duvidaResposta.innerHTML = bloco;
+        duvidaResposta.classList.add("vis");
+        duvidasSalvas[desafioIdx] = {
+          pergunta: inputDuvida.value.trim(),
+          respostaHtml: bloco,
+        };
+        salvarDuvidas();
+      }
+
+      function montarPromptCursor(ctx) {
+        return `Paulo está estudando React neste app de estudos (index.html).
+
+DESAFIO ${ctx.desafioNum}: ${ctx.titulo}
+Passos esperados (não revelar código pronto): ${ctx.passos}
+Dica permitida: ${ctx.dica}
+
+CÓDIGO ATUAL DO PAULO (só para contexto):
+\`\`\`javascript
+${ctx.codigo}
+\`\`\`
+
+DÚVIDA DO PAULO:
+${ctx.pergunta}
+
+REGRAS OBRIGATÓRIAS:
+- Explicar com exemplo NO CONTEXTO do código dele (variáveis que ele já usa).
+- NÃO colar a solução completa do desafio nem o gabarito.
+- NÃO escrever o arquivo inteiro pronto — só o trecho conceitual (ex: só o map, só o key).
+- Português, estilo Mimo: curto, claro, 1 analogia se ajudar.
+- Se ele pediu "explicação melhor", aprofundar sem dar a resposta.`;
+      }
+
+      function atualizarBotaoExplicar() {
+        const btn = document.getElementById("btnExplicar");
+        btn.textContent =
+          tutorOnline && tutorTemChave ? "Explicar (IA)" : "Dica rápida";
+      }
+
+      async function checarTutor() {
+        const el = document.getElementById("tutorStatus");
+        const setup = document.getElementById("tutorSetup");
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 3500);
+          const res = await fetch(tutorApiUrl("/health"), { signal: ctrl.signal });
+          clearTimeout(t);
+          const j = await res.json();
+          tutorOnline = Boolean(j.ok);
+          tutorTemChave = Boolean(j.hasKey);
+          if (tutorOnline && tutorTemChave) {
+            el.textContent = tutorModoLocal()
+              ? "Explicar usa IA do Cursor (tutor local)."
+              : "Explicar usa IA do Cursor (nuvem).";
+            setup.textContent = tutorModoLocal()
+              ? "Tutor local: ligado."
+              : "Tutor na Vercel: ligado.";
+          } else if (tutorOnline) {
+            el.textContent = "IA indisponível: falta CURSOR_API_KEY.";
+            setup.innerHTML = tutorModoLocal()
+              ? "Crie <code>.env</code> com <code>CURSOR_API_KEY=...</code> (veja .env.example) e rode <code>npm run tutor</code>."
+              : "Na Vercel: Settings → Environment Variables → <code>CURSOR_API_KEY</code> e faça redeploy.";
+          } else {
+            el.textContent = "Explicar usa dicas da página (sem IA).";
+            setup.innerHTML = textoSetupTutor();
+          }
+        } catch (_) {
+          tutorOnline = false;
+          tutorTemChave = false;
+          el.textContent = tutorModoLocal()
+            ? "Explicar usa dicas da página. Rode npm run tutor para IA."
+            : "Explicar usa dicas da página. Configure CURSOR_API_KEY na Vercel.";
+          setup.innerHTML = textoSetupTutor();
+        }
+        atualizarBotaoExplicar();
+      }
+
+      function textoSetupTutor() {
+        if (tutorModoLocal()) {
+          return (
+            "<strong>Tutor IA (opcional):</strong> <code>npm run tutor</code> " +
+            "(antes: <code>.env</code> com chave do Cursor). Deixe o terminal aberto."
+          );
+        }
+        return (
+          "<strong>IA na Vercel:</strong> adicione <code>CURSOR_API_KEY</code> nas variáveis de ambiente " +
+          "do projeto e redeploy. Enquanto isso, use <strong>Dica rápida</strong> ou o <strong>Fórum</strong>."
+        );
+      }
+
+      function formatarRespostaCursor(texto) {
+        const esc = escapeHtml(texto.trim());
+        if (esc.includes("```")) {
+          return `<div class="resposta-cursor">${esc
+            .replace(/```(\w*)\n?([\s\S]*?)```/g, "<pre>$2</pre>")
+            .replace(/\n/g, "<br>")}</div>`;
+        }
+        return `<div style="white-space:pre-wrap">${esc}</div>`;
+      }
+
+      async function pedirExplicacaoCursor(ctx) {
+        const prompt = montarPromptCursor(ctx);
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 120000);
+        const res = await fetch(tutorApiUrl("/explain"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erro no servidor tutor");
+        return data.resposta;
+      }
+
+      document.getElementById("btnZerar").onclick = comecarDoZero;
+
+      document.getElementById("btnExplicar").onclick = async () => {
+        const pergunta = inputDuvida.value.trim();
+        if (!pergunta) {
+          alert("Escreve sua dúvida primeiro — ex: o que o map faria aqui?");
+          return;
+        }
+        const ctx = montarContextoDuvida();
+        const btn = document.getElementById("btnExplicar");
+        btn.disabled = true;
+        duvidaResposta.classList.add("vis");
+
+        if (!tutorOnline || !tutorTemChave) {
+          const local = responderDuvidaLocal(ctx);
+          mostrarRespostaDuvida(local.titulo, local.html, "dica local");
+          btn.disabled = false;
+          return;
+        }
+
+        duvidaResposta.innerHTML =
+          '<p class="duvida-loading">Consultando Cursor… pode levar até 1 minuto.</p>';
+
+        try {
+          const texto = await pedirExplicacaoCursor(ctx);
+          mostrarRespostaDuvida(
+            "Explicação (Cursor)",
+            formatarRespostaCursor(texto),
+            "automático"
+          );
+        } catch (err) {
+          const local = responderDuvidaLocal(ctx);
+          const msgErro = escapeHtml(err.message || String(err));
+          const dicaExtra = tutorModoLocal()
+            ? `Rode <code>npm run tutor</code> no PC.`
+            : `Confira <code>CURSOR_API_KEY</code> na Vercel e redeploy.`;
+          mostrarRespostaDuvida(
+            local.titulo,
+            local.html +
+              `<p class="aviso" style="margin-top:10px">IA indisponível (${msgErro}). ${dicaExtra}</p>`,
+            "dica rápida"
+          );
+          checarTutor();
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      document.getElementById("btnAnterior").onclick = () => irParaDesafio(desafioIdx - 1);
+      document.getElementById("btnSeguinte").onclick = () => irParaDesafio(desafioIdx + 1);
+
+      document.getElementById("btnCopiarCursor").onclick = async () => {
+        const pergunta = inputDuvida.value.trim();
+        if (!pergunta) {
+          alert("Escreve a dúvida antes de copiar.");
+          return;
+        }
+        const ctx = montarContextoDuvida();
+        const prompt = montarPromptCursor(ctx);
+        try {
+          await navigator.clipboard.writeText(prompt);
+          mostrarRespostaDuvida(
+            "Copiado pro Cursor",
+            `<p>Prompt copiado. No Cursor: <strong>Ctrl+L</strong> (chat), cole e envie.</p>
+              <p>Peça: <em>"explica sem dar a solução"</em></p>
+              <p>Quando eu responder, clique <strong>Salvar resposta do Cursor</strong> e cole o texto aqui.</p>
+              <p class="aviso">Opcional: no chat você pode escrever <code>@index.html</code> pra eu ver o arquivo.</p>`,
+            "clipboard"
+          );
+        } catch (_) {
+          prompt("Copie manualmente:", prompt);
+        }
+      };
+
+      /** Erros comuns em TODOS os desafios */
+      function validarErrosComuns(c) {
+        const erros = [];
+
+        if (/Reat\.|reat\.|REACT\./.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ Typo: escreva <strong>React</strong>.useState — você digitou Reat/reat (falta o c)",
+          });
+        }
+
+        if (/onClick=\{[^=>]*\s(setContador|setHistorico|setPasso|setMostrar)/.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ onClick errado: não coloque <strong>adicionar setHistorico(...)</strong> junto. Use <code>onClick={adicionar}</code> ou <code>onClick={() => { ... }}</code>",
+          });
+        }
+
+        if (/\[\.\.\.[a-zA-Z_$]+\s*,\s*novo\s*\]/.test(c) && !/const\s+novo\s*=/.test(c) && !/let\s+novo\s*=/.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ Variável <strong>novo</strong> não existe: você usou [...h, novo] mas não criou <code>const novo = prev + 1</code> antes",
+          });
+        }
+
+        if (/useState/.test(c) && !/React\.useState/.test(c)) {
+          erros.push({
+            ok: false,
+            msg: "❌ useState precisa ser <strong>React.useState</strong> (com React. na frente)",
+          });
+        }
+
+        return erros;
+      }
+
+      /** Validação rigorosa — Desafio 7 */
+      function validarDesafio7(c) {
+        const checks = [];
+
+        checks.push({
+          ok: /React\.useState\s*\(\s*\[\s*\]\s*\)/.test(c),
+          msg: "Declare o histórico: <code>const [historico, setHistorico] = React.useState([]);</code>",
+        });
+
+        checks.push({
+          ok: /setHistorico/.test(c),
+          msg: "Falta chamar <strong>setHistorico</strong> para salvar na lista",
+        });
+
+        checks.push({
+          ok: !/onClick=\{[^}]*setHistorico/.test(c),
+          msg: "❌ <strong>setHistorico não vai no onClick do botão</strong> — coloque dentro da função adicionar()",
+        });
+
+        const corpoAdicionar = (c.match(/function\s+adicionar\s*\([^)]*\)\s*\{([\s\S]*?)\n\s*\}/) || [])[1] || "";
+        checks.push({
+          ok: corpoAdicionar.includes("setHistorico"),
+          msg: "❌ setHistorico precisa estar <strong>dentro de function adicionar()</strong>, não só no JSX",
+        });
+
+        checks.push({
+          ok: /\[\.\.\.[a-zA-Z_$]+/.test(c),
+          msg: "Use spread para copiar array: <code>[...h, novo]</code> ou <code>[...prev, x]</code>",
+        });
+
+        checks.push({
+          ok: /const\s+novo\s*=/.test(corpoAdicionar) || /const\s+novo\s*=/.test(c),
+          msg: "Crie a variável: <code>const novo = prev + 1;</code> antes de salvar no histórico",
+        });
+
+        checks.push({
+          ok: /return\s+novo/.test(corpoAdicionar) || /return\s+novo/.test(c),
+          msg: "Dentro do setContador((prev) => { ... }), faça <code>return novo;</code> no final",
+        });
+
+        return checks;
+      }
+
+      function compilarCodigo(codigo) {
+        try {
+          Babel.transform(codigo, { presets: ["react"] });
+          return { ok: true };
+        } catch (e) {
+          const linha = e.loc ? ` (linha ${e.loc.line})` : "";
+          return { ok: false, msg: `Erro de sintaxe${linha}: ${e.message}` };
+        }
+      }
+
+      function rodarPreview(codigo) {
+        previewErro.classList.remove("vis");
+        previewErro.textContent = "";
+        previewOk.style.display = "none";
+
+        const comp = compilarCodigo(codigo);
+        if (!comp.ok) {
+          previewErro.textContent = comp.msg;
+          previewErro.classList.add("vis");
+          return { ok: false, msg: comp.msg };
+        }
+
+        let codigoFinal = codigo.trim();
+        if (!/function\s+App/.test(codigoFinal)) {
+          codigoFinal += `\n\nfunction App() {\n  return (\n    <main>\n      <Contador />\n    </main>\n  );\n}`;
+        }
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"><\/script>
+<style>
+body{font-family:Rubik,sans-serif;background:#212128;color:#c6e006;padding:16px;margin:0}
+button{border:1px solid #1800b7;color:rgb(251,167,181);padding:8px 14px;cursor:pointer;background:transparent;border-radius:6px}
+div{display:flex;flex-direction:column;gap:8px}
+p{margin:4px 0;font-size:18px;font-weight:bold}
+ul{color:#a78bfa;margin:8px 0 0 20px}
+#error-preview{color:#ef4444;padding:12px;font-family:monospace;font-size:12px;white-space:pre-wrap}
+<\/style><\/head><body>
+<div id="error-preview"><\/div>
+<div id="root"><\/div>
+<script>
+window.onerror=function(msg,url,line,col,err){
+  document.getElementById("error-preview").textContent="Erro: "+msg+(line?" (linha "+line+")":"");
+};
+<\/script>
+<script type="text/babel">
+${codigoFinal}
+try {
+  const rootEl = document.getElementById("root");
+  ReactDOM.createRoot(rootEl).render(<App />);
+} catch (e) {
+  document.getElementById("error-preview").textContent = "Erro ao renderizar: " + e.message;
+}
+<\/script><\/body><\/html>`;
+
+        const doc = previewFrame.contentDocument;
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            try {
+              const errEl = previewFrame.contentDocument.getElementById("error-preview");
+              const rootEl = previewFrame.contentDocument.getElementById("root");
+              const errText = errEl?.textContent?.trim() || "";
+              if (errText) {
+                previewErro.textContent = errText;
+                previewErro.classList.add("vis");
+                resolve({ ok: false, msg: errText });
+                return;
+              }
+              if (rootEl && rootEl.children.length > 0) {
+                previewOk.style.display = "block";
+                resolve({ ok: true });
+              } else {
+                const msg = "Preview vazia — verifique se function Contador() existe e retorna JSX";
+                previewErro.textContent = msg;
+                previewErro.classList.add("vis");
+                resolve({ ok: false, msg });
+              }
+            } catch (e) {
+              previewErro.textContent = e.message;
+              previewErro.classList.add("vis");
+              resolve({ ok: false, msg: e.message });
+            }
+          }, 900);
+        });
+      }
+
+      function escapeHtml(t) {
+        return String(t).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+      }
+
+      document.getElementById("btnDesafios").onclick = () => trocarPainel("desafios");
+      document.getElementById("btnForum").onclick = () => trocarPainel("forum");
+      document.getElementById("btnDesafiosTab").onclick = () => trocarPainel("desafios");
+      document.getElementById("btnForumTab").onclick = () => trocarPainel("forum");
+
+      function trocarPainel(n) {
+        painelAtivo = n;
+        ["btnDesafios", "btnDesafiosTab"].forEach((id) =>
+          document.getElementById(id)?.classList.toggle("ativo", n === "desafios")
+        );
+        ["btnForum", "btnForumTab"].forEach((id) =>
+          document.getElementById(id)?.classList.toggle("ativo", n === "forum")
+        );
+        document.getElementById("painelDesafios").classList.toggle("ativo", n === "desafios");
+        document.getElementById("painelForum").classList.toggle("ativo", n === "forum");
+        salvarProgresso();
+      }
+
+      window.abrirForum = (id) => {
+        trocarPainel("forum");
+        const el = document.getElementById("forum-" + id);
+        if (el) {
+          el.open = true;
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
+
+      function renderForum() {
+        const busca = document.getElementById("buscaForum").value.toLowerCase();
+        const tags = document.getElementById("tagsForum");
+        const allTags = ["todas", ...new Set(forum.flatMap((f) => f.tags))];
+        tags.innerHTML = "";
+        allTags.forEach((t) => {
+          const b = document.createElement("button");
+          b.textContent = t;
+          b.classList.toggle("ativo", t === tagAtiva);
+          b.onclick = () => { tagAtiva = t; renderForum(); };
+          tags.appendChild(b);
+        });
+
+        const lista = document.getElementById("listaForum");
+        lista.innerHTML = "";
+        forum
+          .filter((f) => tagAtiva === "todas" || f.tags.includes(tagAtiva))
+          .filter((f) => !busca || (f.titulo + f.corpo).toLowerCase().includes(busca))
+          .forEach((f) => {
+            const d = document.createElement("details");
+            d.className = "forum-card";
+            d.id = "forum-" + f.id;
+            d.innerHTML = `<summary>${escapeHtml(f.titulo)} <span style="color:#6b7280;font-weight:400;font-size:0.8rem">${f.tags.join(" · ")}</span></summary><div class="forum-corpo">${f.corpo}</div>`;
+            lista.appendChild(d);
+          });
+      }
+
+      document.getElementById("buscaForum").oninput = renderForum;
+
+      function quizCompleto(desafio) {
+        if (!desafio.quiz?.length) return true;
+        return desafio.quiz.every((_, qi) => quizAcertos[`${desafioIdx}-${qi}`]);
+      }
+
+      function renderQuiz(desafio) {
+        const quizEl = document.getElementById("quizDesafio");
+        quizAcertos = {};
+        if (!desafio.quiz?.length) {
+          quizEl.style.display = "none";
+          quizEl.innerHTML = "";
+          return;
+        }
+        quizEl.style.display = "block";
+        const sub =
+          desafio.tipo === "teoria"
+            ? "Responda para confirmar — depois Verificar"
+            : "Reforço rápido do conceito";
+        quizEl.innerHTML = `<h4>Perguntas<span>${sub}</span></h4>`;
+        desafio.quiz.forEach((q, qi) => {
+          const bloco = document.createElement("div");
+          bloco.className = "quiz-pergunta";
+          bloco.innerHTML = `<p><strong>${qi + 1}.</strong> ${escapeHtml(q.pergunta)}</p>`;
+          const opcoes = document.createElement("div");
+          opcoes.className = "quiz-opcoes";
+          const fb = document.createElement("p");
+          fb.className = "quiz-feedback";
+          const exp = document.createElement("div");
+          exp.className = "quiz-explicacao";
+          exp.style.display = "none";
+          q.opcoes.forEach((texto, oi) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = texto;
+            btn.onclick = () => {
+              if (oi === q.correta) {
+                opcoes.querySelectorAll("button").forEach((b) => {
+                  b.disabled = true;
+                  b.classList.remove("acerto", "erro");
+                });
+                btn.classList.add("acerto");
+                quizAcertos[`${desafioIdx}-${qi}`] = true;
+                fb.textContent = "Correto!";
+                fb.style.color = "#86efac";
+                if (q.explicacao) {
+                  exp.innerHTML = q.explicacao;
+                  exp.style.display = "block";
+                }
+              } else {
+                btn.classList.add("erro");
+                fb.textContent = "Ainda não — lê o conceito e tenta de novo.";
+                fb.style.color = "#fca5a5";
+                setTimeout(() => btn.classList.remove("erro"), 600);
+              }
+            };
+            opcoes.appendChild(btn);
+          });
+          bloco.appendChild(opcoes);
+          bloco.appendChild(fb);
+          bloco.appendChild(exp);
+          quizEl.appendChild(bloco);
+        });
+      }
+
+      const MODO_LABEL = {
+        intro: "Observar",
+        completar: "Montar",
+        escrever: "Implementar",
+      };
+      const TIPO_LABEL = { teoria: "Teoria", pratica: "Prática" };
+
+      function codigoParaEditor(d, modo) {
+        const salvo = codigosSalvos[desafioIdx];
+        if (modo === "intro") return d.codigo;
+        if (salvo && salvo.trim().length > 20 && /function\s+Contador/.test(salvo)) return salvo;
+        return d.codigo;
+      }
+
+      function renderMissao(d, modo) {
+        const el = document.getElementById("missaoDesafio");
+        const passos = d.passos || ["Leia a missão", "Edite o código", "Preview → Verificar"];
+        let html = "";
+        if (d.missao) {
+          html += `<div class="missao-texto">${d.missao}</div>`;
+        }
+        if (d.ferramentas) {
+          html += `<div class="missao-ferramentas"><strong>Pode usar:</strong> ${d.ferramentas}</div>`;
+        }
+        html += "<h3>Passo a passo</h3><ol>";
+        passos.forEach((p) => {
+          html += `<li>${p}</li>`;
+        });
+        html += "</ol>";
+        if (modo === "intro") {
+          html +=
+            '<p class="missao-nota">Não altere o código — observe como funciona e responda o quiz.</p>';
+        } else if (modo === "completar") {
+          html +=
+            '<p class="missao-nota">O arquivo já vem quase pronto. Complete só o que falta no editor.</p>';
+        }
+        el.innerHTML = html;
+      }
+
+      function carregarDesafio() {
+        const d = desafios[desafioIdx];
+        const tipo = d.tipo || "pratica";
+        const modo = d.modo || "escrever";
+        const ehTeoria = tipo === "teoria";
+
+        document.getElementById("btnDesafiosTab").textContent = "Estudar";
+        document.getElementById("topoTitulo").textContent = `Pergunta ${desafioIdx + 1}`;
+        document.getElementById("metaDesafio").textContent = `${desafioIdx + 1} de ${desafios.length}`;
+        document.getElementById("statsDesafio").textContent = `${concluidos.size} concluídas`;
+        document.getElementById("btnAnterior").disabled = desafioIdx === 0;
+        document.getElementById("btnSeguinte").disabled = desafioIdx >= desafios.length - 1;
+
+        const badge = document.getElementById("badgeNivel");
+        const modoTxt = ehTeoria ? TIPO_LABEL.teoria : (MODO_LABEL[modo] || TIPO_LABEL.pratica);
+        badge.textContent = `${modoTxt} · ${d.nivel}`;
+        badge.className = "badge " + (d.nivelClass || d.modo || (ehTeoria ? "intro" : "verde"));
+
+        document.getElementById("labelConceito").textContent = ehTeoria ? "Teoria" : "Contexto";
+        const chipRev = document.getElementById("chipRevisao");
+        chipRev.innerHTML =
+          d.revisaoDe != null
+            ? `<span class="revisao-chip">Revisão · pergunta ${d.revisaoDe + 1}</span>`
+            : "";
+
+        document.getElementById("tituloDesafio").textContent = d.titulo;
+        document.getElementById("aprenderDesafio").innerHTML =
+          d.aprender || "<p>Leia com calma antes de responder.</p>";
+        document.getElementById("explicaDesafio").innerHTML = d.explica || "";
+
+        const secPratica = document.getElementById("secaoPratica");
+        secPratica.classList.toggle("oculta", ehTeoria);
+        document.getElementById("btnPreview").style.display = ehTeoria ? "none" : "";
+        document.getElementById("btnDica").style.display = ehTeoria ? "none" : "";
+        document.getElementById("btnSolucao").style.display = ehTeoria ? "none" : "";
+
+        const pb = document.getElementById("porqueBox");
+        pb.classList.remove("vis");
+        pb.innerHTML = "";
+        document.getElementById("solucaoDetails").style.display = "none";
+        renderQuiz(d);
+        document.getElementById("barDesafio").style.width = `${((desafioIdx + 1) / desafios.length) * 100}%`;
+
+        const refs = document.getElementById("refsForum");
+        refs.innerHTML = "<strong>Fórum:</strong> ";
+        (d.refs || []).forEach((id) => {
+          const f = forum.find((x) => x.id === id);
+          if (f) {
+            const b = document.createElement("button");
+            b.textContent = f.titulo.split("—")[0].trim();
+            b.onclick = () => abrirForum(id);
+            refs.appendChild(b);
+          }
+        });
+
+        const missaoEl = document.getElementById("missaoDesafio");
+        if (ehTeoria) missaoEl.style.display = "none";
+        else {
+          missaoEl.style.display = "";
+          renderMissao(d, modo);
+        }
+
+        const editorHint = document.getElementById("editorHint");
+        if (editorHint) {
+          editorHint.textContent = ehTeoria
+            ? ""
+            : modo === "intro"
+              ? "Somente leitura"
+              : modo === "completar"
+                ? "Troque ___LACUNA___"
+                : "Edite aqui";
+        }
+
+        const nav = document.getElementById("navDesafios");
+        nav.innerHTML = "";
+        desafios.forEach((item, i) => {
+          const b = document.createElement("button");
+          b.textContent = i + 1;
+          b.title = item.titulo;
+          b.classList.toggle("ativo", i === desafioIdx);
+          b.classList.toggle("ok", concluidos.has(i));
+          b.onclick = () => {
+            irParaDesafio(i);
+            document.getElementById("mapaPerguntas").open = false;
+          };
+          nav.appendChild(b);
+        });
+
+        if (!ehTeoria && d.codigo) {
+          editor.value = codigoParaEditor(d, modo);
+          editor.readOnly = modo === "intro";
+          editor.classList.toggle("readonly", modo === "intro");
+          restaurarDuvidaDoDesafio();
+          resetFeedback();
+          rodarPreview(editor.value);
+        } else {
+          editor.value = "";
+          resetFeedback();
+        }
+      }
+
+      function resetFeedback() {
+        feedback.className = "feedback";
+        feedback.style.display = "none";
+        feedback.innerHTML = "";
+        document.getElementById("porqueBox").classList.remove("vis");
+        document.getElementById("solucaoDetails").style.display = "none";
+        btnProximo.style.display = "none";
+        previewErro.classList.remove("vis");
+        previewErro.textContent = "";
+        previewOk.style.display = "none";
+      }
+
+      function renderFeedbackFalhas(falhas, parcial) {
+        const titulo = parcial
+          ? "<strong>Quase — mas ainda tem erro:</strong>"
+          : "<strong>Encontrei estes problemas no seu código:</strong>";
+        return (
+          titulo +
+          falhas
+            .map(
+              (f) =>
+                `<div class="erro-item">${f.msg.includes("<") ? f.msg : escapeHtml(f.msg)}</div>`
+            )
+            .join("") +
+          "<p style='margin-top:12px;font-size:0.88rem;color:#9ca3af'>Veja a <strong>Preview</strong> — caixa vermelha = código quebra no navegador.</p>"
+        );
+      }
+
+      document.getElementById("btnPreview").onclick = () => rodarPreview(editor.value);
+
+      document.getElementById("btnVerificar").onclick = async () => {
+        const d = desafios[desafioIdx];
+        const tipo = d.tipo || "pratica";
+        const modo = d.modo || "escrever";
+
+        if (tipo === "teoria") {
+          feedback.style.display = "block";
+          if (!quizCompleto(d)) {
+            feedback.className = "feedback parcial";
+            feedback.innerHTML =
+              "<strong>Responda todas as perguntas corretamente</strong> antes de continuar.";
+            return;
+          }
+          feedback.className = "feedback ok";
+          feedback.innerHTML = "<strong>Teoria ok!</strong> Próximo passo: prática do mesmo assunto.";
+          if (d.porque) {
+            const pb = document.getElementById("porqueBox");
+            pb.innerHTML = `<strong>Por que importa?</strong><p>${d.porque}</p>`;
+            pb.classList.add("vis");
+          }
+          concluidos.add(desafioIdx);
+          document.getElementById("statsDesafio").textContent = `OK: ${concluidos.size}/${desafios.length}`;
+          btnProximo.style.display = "inline-block";
+          btnProximo.textContent = desafioIdx < desafios.length - 1 ? "Próxima →" : "Terminou!";
+          document.querySelectorAll("#navDesafios button").forEach((b) => {
+            if (Number(b.textContent) === desafioIdx + 1) b.classList.add("ok");
+          });
+          salvarProgresso();
+          return;
+        }
+
+        const codigo =
+          editor.value.trim() || (modo === "intro" ? d.codigo : editor.value);
+        const checks = [...validarErrosComuns(codigo), ...(d.validar ? d.validar(codigo) : [])];
+        const vistos = new Set();
+        const checksUnicos = checks.filter((c) => {
+          if (vistos.has(c.msg)) return false;
+          vistos.add(c.msg);
+          return true;
+        });
+        const falhas = checksUnicos.filter((c) => !c.ok);
+
+        const comp = compilarCodigo(codigo);
+        if (!comp.ok) {
+          falhas.unshift({ ok: false, msg: "❌ " + comp.msg });
+        }
+
+        feedback.style.display = "block";
+
+        if (falhas.length) {
+          feedback.className = checksUnicos.some((c) => c.ok) ? "feedback parcial" : "feedback erro";
+          feedback.innerHTML = renderFeedbackFalhas(falhas, checksUnicos.some((c) => c.ok));
+          concluidos.delete(desafioIdx);
+          document.getElementById("navDesafios").querySelectorAll("button")[desafioIdx]?.classList.remove("ok");
+          document.getElementById("statsDesafio").textContent = `Concluídos: ${concluidos.size}/${desafios.length}`;
+          salvarProgresso();
+          await rodarPreview(codigo);
+          return;
+        }
+
+        const preview = await rodarPreview(codigo);
+        if (!preview.ok) {
+          feedback.className = "feedback parcial";
+          feedback.innerHTML = renderFeedbackFalhas(
+            [{ ok: false, msg: "❌ Preview falhou: " + preview.msg }],
+            true
+          );
+          concluidos.delete(desafioIdx);
+          salvarProgresso();
+          return;
+        }
+
+        feedback.className = "feedback ok";
+        feedback.innerHTML = `<strong>✅ Passou!</strong> Agora leia “por que funcionou” abaixo.`;
+        if (d.porque) {
+          const pb = document.getElementById("porqueBox");
+          pb.innerHTML = `<strong>💡 Por que funcionou?</strong><p>${d.porque}</p>`;
+          pb.classList.add("vis");
+        }
+        concluidos.add(desafioIdx);
+        document.getElementById("statsDesafio").textContent = `Concluídos: ${concluidos.size}/${desafios.length}`;
+        btnProximo.style.display = "inline-block";
+        btnProximo.textContent = desafioIdx < desafios.length - 1 ? "Próximo desafio →" : "🎉 Terminou tudo!";
+        document.getElementById("navDesafios").querySelectorAll("button")[desafioIdx].classList.add("ok");
+        salvarProgresso();
+      };
+
+      document.getElementById("btnDica").onclick = () => {
+        feedback.style.display = "block";
+        feedback.className = "feedback parcial";
+        feedback.innerHTML = "<strong>💡</strong> " + escapeHtml(desafios[desafioIdx].dica);
+      };
+
+      document.getElementById("btnSolucao").onclick = () => {
+        const det = document.getElementById("solucaoDetails");
+        det.style.display = "block";
+        det.open = true;
+        solucaoPre.textContent = desafios[desafioIdx].solucao;
+      };
+
+      btnProximo.onclick = () => {
+        if (desafioIdx < desafios.length - 1) {
+          irParaDesafio(desafioIdx + 1);
+        } else {
+          feedback.className = "feedback ok";
+          feedback.style.display = "block";
+          feedback.innerHTML = `<strong>🎉 Paulo, você fez os ${desafios.length}!</strong> Cola o último desafio no <code>contador.html</code>. Fórum continua lá se esquecer algo.`;
+          salvarProgresso();
+        }
+      };
+
+      editor.addEventListener("input", salvarProgressoDebounced);
+      window.addEventListener("beforeunload", salvarProgresso);
+
+      const params = new URLSearchParams(location.search);
+      let forceZero = params.get("zerar") === "1";
+      if (forceZero) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_V3);
+        localStorage.removeItem(STORAGE_V2);
+        localStorage.removeItem(STORAGE_V1);
+        localStorage.removeItem(STORAGE_DUVIDAS);
+        history.replaceState({}, "", location.pathname);
+      }
+
+      carregarProgresso();
+      carregarDuvidas();
+
+      if (params.get("zerar") === "1") {
+        desafioIdx = 0;
+        concluidos.clear();
+        codigosSalvos = {};
+        duvidasSalvas = {};
+        salvarProgresso();
+        salvarDuvidas();
+      }
+
+      renderForum();
+      trocarPainel(painelAtivo);
+      carregarDesafio();
+      checarTutor();
+      setInterval(checarTutor, 15000);
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      }
+    </script>
+  </body>
 </html>

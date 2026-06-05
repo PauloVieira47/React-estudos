@@ -1,5 +1,5 @@
 /**
- * Ponte entre questoes.html e o Cursor (SDK).
+ * Ponte entre index.html e o Cursor (SDK).
  * Rode: npm install && npm run tutor
  * Deixe este terminal aberto enquanto estuda.
  */
@@ -138,6 +138,6 @@ server.listen(PORT, HOST, () => {
       ? "  API key: ok"
       : "  AVISO: crie .env com CURSOR_API_KEY (veja .env.example)"
   );
-  console.log("  Deixe este terminal aberto e use Explicar aqui no questoes.html");
+  console.log("  Deixe este terminal aberto e use Explicar aqui no index.html");
   console.log("");
 });
